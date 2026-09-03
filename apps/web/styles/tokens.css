@@ -1,0 +1,43 @@
+/**
+ * Base tokens as CSS custom properties, for the rare cases (charts,
+ * inline SVG fills, third-party widgets) that fall outside Tailwind's
+ * class-based styling. Component code should reach for Tailwind
+ * classes (tailwind.config.ts) first; this file exists so token
+ * values are never hand-typed twice.
+ */
+:root {
+  --color-paper: #F7F1E6;
+  --color-parchment: #FBF7EE;
+  --color-paper-deep: #EFE6D3;
+  --color-ink: #2B2016;
+  --color-ink-soft: #55483A;
+  --color-bark: #7C6248;
+  --color-clay: #A0937C;
+  --color-patina: #8A5A2B;
+  --color-patina-deep: #6E4620;
+  --color-line: #E2D5BE;
+  --color-line-strong: #CDBA9B;
+
+  --color-verified: #3E5C3E;
+  --color-verified-bg: #E2E8DD;
+  --color-pending: #A97A22;
+  --color-pending-bg: #F1E4C6;
+  --color-danger: #9C4331;
+  --color-danger-bg: #F0DCD3;
+  --color-neutral-state: #8A7F6C;
+  --color-neutral-state-bg: #EAE2D0;
+
+  --font-display: var(--font-caslon), Georgia, serif;
+  --font-body: var(--font-plex-sans), -apple-system, sans-serif;
+  --font-mono: var(--font-plex-mono), monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --shadow-float: 0 8px 24px rgba(43, 32, 22, 0.12);
+  --shadow-modal: 0 16px 48px rgba(43, 32, 22, 0.18);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
