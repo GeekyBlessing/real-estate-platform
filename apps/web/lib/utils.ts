@@ -15,3 +15,7 @@ export function formatNaira(amountInKobo: number): string {
     maximumFractionDigits: 0,
   }).format(naira);
 }
+
+export function formatMileage(km: number): string {
+  return `${new Intl.NumberFormat("en-NG").format(km)} km`;
+}

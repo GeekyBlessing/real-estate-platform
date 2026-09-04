@@ -1,23 +1,16 @@
 import Link from "next/link";
-import { VerificationBadge, VerificationState } from "@/components/ui/Badge";
+import { VerificationBadge } from "@/components/ui/Badge";
 import { PropertyMedia } from "./PropertyMedia";
 import { formatNaira } from "@/lib/utils";
+import { ListingBase, sellerRoleLabel } from "@/lib/listings";
 
-export interface PropertyCardData {
-  slug: string;
-  title: string;
-  locationLabel: string;
+export interface PropertyCardData extends ListingBase {
+  category: "property";
   listingType: "rent" | "sale";
-  priceInKobo: number;
   rentPeriod?: "year" | "month";
   bedrooms: number | null;
   bathrooms: number;
   sizeSqm: number;
-  mediaVariant: number;
-  verificationState: VerificationState;
-  agentName: string;
-  agentRole: "agent" | "landlord";
-  isFavorited: boolean;
 }
 
 export interface PropertyCardProps {
@@ -69,7 +62,7 @@ export function PropertyCard({ property, onToggleFavorite }: PropertyCardProps) 
         <Link href={`/properties/${property.slug}`} className="mt-1 block text-sm font-semibold text-ink hover:underline">
           {property.title}
         </Link>
-        <p className="mt-0.5 text-xs text-ink-soft">{property.locationLabel}</p>
+        <p className="mt-0.5 text-xs text-ink-soft">{property.location.label}</p>
 
         <div className="mt-4 flex gap-4 border-t border-line pt-4 text-xs text-ink-soft">
           <span><strong className="text-ink">{property.bedrooms ?? "N/A"}</strong> beds</span>
@@ -79,13 +72,13 @@ export function PropertyCard({ property, onToggleFavorite }: PropertyCardProps) 
 
         <div className="mt-4 flex items-center gap-2 text-xs text-ink-soft">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-patina font-mono text-[10px] font-bold text-white">
-            {property.agentName
+            {property.listedBy.name
               .split(" ")
               .map((part) => part[0])
               .join("")
               .slice(0, 2)}
           </span>
-          {property.agentName} · {property.agentRole === "agent" ? "Verified agent" : "Landlord"}
+          {property.listedBy.name} · {sellerRoleLabel(property.listedBy.role)}
         </div>
       </div>
     </article>

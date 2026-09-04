@@ -9,10 +9,17 @@ import { useToast } from "@/components/ui/Toast";
 export interface InspectionRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
-  propertyTitle: string;
+  /** The property or vehicle this request is for, shown in the confirmation copy below. */
+  assetTitle: string;
 }
 
-export function InspectionRequestModal({ isOpen, onClose, propertyTitle }: InspectionRequestModalProps) {
+/**
+ * Shared by the property and vehicle detail pages (see PropertyActions
+ * and components/vehicle/VehicleActions.tsx), since requesting an
+ * inspection works the same way regardless of what is being
+ * inspected. Only the asset being inspected differs.
+ */
+export function InspectionRequestModal({ isOpen, onClose, assetTitle }: InspectionRequestModalProps) {
   const { showToast } = useToast();
   const [preferredDate, setPreferredDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -25,14 +32,14 @@ export function InspectionRequestModal({ isOpen, onClose, propertyTitle }: Inspe
     setTimeout(() => {
       setSubmitting(false);
       onClose();
-      showToast("Inspection request sent. The agent has one business day to confirm.", "success");
+      showToast("Inspection request sent. The seller has one business day to confirm.", "success");
     }, 600);
   }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Request an inspection">
       <p className="text-sm text-ink-soft">
-        For {propertyTitle}. Propose a time, the agent can confirm it or suggest another.
+        For {assetTitle}. Propose a time, the seller can confirm it or suggest another.
       </p>
       <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
         <Input

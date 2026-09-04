@@ -2,22 +2,22 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { InspectionRequestModal } from "./InspectionRequestModal";
+import { InspectionRequestModal } from "@/components/property/InspectionRequestModal";
 import { useToast } from "@/components/ui/Toast";
 
-export interface PropertyActionsProps {
-  propertyTitle: string;
+export interface VehicleActionsProps {
+  vehicleTitle: string;
   layout?: "inline" | "sticky-mobile";
 }
 
 /**
+ * The vehicle equivalent of PropertyActions (components/property/PropertyActions.tsx).
  * Contact, Message, Request inspection, and Favorite, always visible,
- * per the blueprint's rule against hiding primary actions behind a
- * menu. Rendered twice on the detail page: inline beside the price on
- * desktop, and again as a sticky bar on mobile, both instances of
- * this one component so behavior never drifts between the two.
+ * rendered inline on desktop and again as a sticky bar on mobile.
+ * Shares InspectionRequestModal with the property flow rather than
+ * duplicating that logic for a second category.
  */
-export function PropertyActions({ propertyTitle, layout = "inline" }: PropertyActionsProps) {
+export function VehicleActions({ vehicleTitle, layout = "inline" }: VehicleActionsProps) {
   const { showToast } = useToast();
   const [inspectionOpen, setInspectionOpen] = useState(false);
   const [favorited, setFavorited] = useState(false);
@@ -30,7 +30,7 @@ export function PropertyActions({ propertyTitle, layout = "inline" }: PropertyAc
   return (
     <>
       <div className={wrapperClass}>
-        <Button className="flex-1" onClick={() => showToast("Your enquiry was sent to the agent.")}>
+        <Button className="flex-1" onClick={() => showToast("Your enquiry was sent to the seller.")}>
           Contact
         </Button>
         <Button variant="secondary" className="flex-1" onClick={() => showToast("Opening conversation.")}>
@@ -43,7 +43,7 @@ export function PropertyActions({ propertyTitle, layout = "inline" }: PropertyAc
           type="button"
           onClick={() => setFavorited((value) => !value)}
           aria-pressed={favorited}
-          aria-label={favorited ? "Remove from saved properties" : "Save property"}
+          aria-label={favorited ? "Remove from saved vehicles" : "Save vehicle"}
           className="flex h-10 w-10 flex-none items-center justify-center rounded-sm border border-line-strong text-ink"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill={favorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
@@ -51,7 +51,7 @@ export function PropertyActions({ propertyTitle, layout = "inline" }: PropertyAc
           </svg>
         </button>
       </div>
-      <InspectionRequestModal isOpen={inspectionOpen} onClose={() => setInspectionOpen(false)} assetTitle={propertyTitle} />
+      <InspectionRequestModal isOpen={inspectionOpen} onClose={() => setInspectionOpen(false)} assetTitle={vehicleTitle} />
     </>
   );
 }

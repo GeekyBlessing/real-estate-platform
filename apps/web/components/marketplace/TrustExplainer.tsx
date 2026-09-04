@@ -3,11 +3,11 @@ import { VerificationDisclosure } from "@/components/verification/VerificationDi
 const STEPS = [
   {
     title: "Identity confirmed",
-    body: "Every agent and landlord verifies a government issued ID before they can publish a listing.",
+    body: "Every agent, landlord, dealer, and private seller verifies a government issued ID before they can publish a listing.",
   },
   {
     title: "Ownership reviewed",
-    body: "Landlords submit a certificate of occupancy, deed, or tenancy agreement matching the property address.",
+    body: "Landlords and dealers submit ownership or registration documents matching the property or vehicle being listed.",
   },
   {
     title: "Listing checked",

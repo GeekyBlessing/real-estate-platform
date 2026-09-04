@@ -18,7 +18,7 @@ export default function PropertyDetailPage({ params }: { params: { slug: string 
   const property = getPropertyBySlug(params.slug);
   if (!property) notFound();
 
-  const agent = getAgentBySlug(property.agentSlug);
+  const agent = getAgentBySlug(property.listedBy.slug);
   const priceLabel =
     property.listingType === "sale"
       ? `${formatNaira(property.priceInKobo)}, for sale`
@@ -37,7 +37,7 @@ export default function PropertyDetailPage({ params }: { params: { slug: string 
           <div>
             <p className="font-display text-3xl text-ink">{priceLabel}</p>
             <h1 className="mt-2 text-xl font-semibold text-ink">{property.title}</h1>
-            <p className="mt-1 text-sm text-ink-soft">{property.locationLabel}</p>
+            <p className="mt-1 text-sm text-ink-soft">{property.location.label}</p>
 
             <div className="mt-5 flex gap-6 border-y border-line py-4 text-sm text-ink-soft">
               <span><strong className="text-ink">{property.bedrooms ?? "N/A"}</strong> beds</span>

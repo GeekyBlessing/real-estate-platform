@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ToastProvider } from "@/components/ui/Toast";
+import { APP_NAME } from "@/lib/brand";
 
 /**
  * Deliberately not the marketplace shell: no primary navigation, no
@@ -12,7 +13,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="flex min-h-screen flex-col">
         <div className="px-6 py-6">
           <Link href="/" className="font-display text-lg font-bold text-ink">
-            Ile
+            {APP_NAME}
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center px-6 pb-16">

@@ -7,6 +7,7 @@ import { FilterDrawer, DEFAULT_FILTERS, FilterValues } from "@/components/market
 import { PropertyGrid } from "@/components/marketplace/PropertyGrid";
 import { Button } from "@/components/ui/Button";
 import { properties } from "@/lib/mock-data";
+import { locationMatches } from "@/lib/locations";
 
 /**
  * Two column layout on desktop, list beside a map panel, collapsing
@@ -27,7 +28,7 @@ function SearchResults() {
 
   const results = useMemo(() => {
     return properties.filter((property) => {
-      if (location && !property.locationLabel.toLowerCase().includes(location.toLowerCase())) return false;
+      if (location && !locationMatches(property.location, location)) return false;
       if (transactionType && property.listingType !== transactionType) return false;
       if (maxPrice && property.priceInKobo > Number(maxPrice) * 100) return false;
       if (filters.minBedrooms && (property.bedrooms ?? 0) < Number(filters.minBedrooms.replace("+", ""))) return false;

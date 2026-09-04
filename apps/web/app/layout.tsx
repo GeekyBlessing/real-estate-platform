@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Libre_Caslon_Text, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import { APP_NAME, APP_DESCRIPTION } from "@/lib/brand";
 
 const caslon = Libre_Caslon_Text({
   subsets: ["latin"],
@@ -25,10 +26,8 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  // Placeholder copy: swap once the client's brand name and homepage
-  // positioning (Section 8 of the blueprint) are approved.
-  title: "Ile",
-  description: "Search verified properties across Nigeria, and talk to the person who owns or manages them.",
+  title: APP_NAME,
+  description: APP_DESCRIPTION,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

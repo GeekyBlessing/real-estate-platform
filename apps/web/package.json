@@ -1,8 +1,8 @@
 {
-  "name": "ile-web",
+  "name": "marketplace-web",
   "private": true,
   "version": "0.1.0",
-  "description": "Marketplace and dashboard frontend. Wordmark is a placeholder pending the client's brand name decision.",
+  "description": "Property and vehicle marketplace frontend. Brand name is centralized in lib/brand.ts pending the client's final decision.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

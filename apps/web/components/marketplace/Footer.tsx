@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { APP_NAME } from "@/lib/brand";
 
 const COLUMNS = [
   {
@@ -6,7 +7,9 @@ const COLUMNS = [
     links: [
       { label: "Buy", href: "/search?type=sale" },
       { label: "Rent", href: "/search?type=rent" },
+      { label: "Cars", href: "/cars" },
       { label: "List a property", href: "/list-a-property" },
+      { label: "Sell a car", href: "/sell-a-car" },
     ],
   },
   {
@@ -52,7 +55,7 @@ export function Footer() {
         ))}
       </div>
       <p className="mx-auto mt-10 max-w-5xl text-xs text-clay">
-        Ile is a placeholder name pending the client's brand decision. Verification reduces risk and confirms
+        {APP_NAME} is a placeholder name pending the client's brand decision. Verification reduces risk and confirms
         specific checks were performed; it is not a guarantee against fraud or a legal guarantee of ownership.
       </p>
     </footer>
