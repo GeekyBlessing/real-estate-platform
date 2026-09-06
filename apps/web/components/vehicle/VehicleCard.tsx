@@ -1,71 +1,87 @@
+"use client";
+
 import Link from "next/link";
 import { VerificationBadge } from "@/components/ui/Badge";
-import { VehicleMedia } from "./VehicleMedia";
+import { ListingMedia } from "@/components/ui/ListingMedia";
 import { formatNaira, formatMileage } from "@/lib/utils";
 import { VehicleCardData, sellerRoleLabel } from "@/lib/listings";
+import { useFavorites } from "@/lib/favorites-context";
+import { HeartIcon } from "@/components/ui/icons";
 
 export interface VehicleCardProps {
   vehicle: VehicleCardData;
-  onToggleFavorite: (slug: string) => void;
 }
 
 /**
  * Deliberately a different information hierarchy from PropertyCard,
  * not the same card with different field names. A buyer evaluates a
  * car by make, model, and year first, then mileage, transmission,
- * and fuel, which is the order this card follows, matching the
- * shape described for the vehicle marketplace.
+ * and fuel. Reads and writes favorites through the shared
+ * FavoritesProvider directly, same as PropertyCard, so a save here
+ * shows up in the Saved tab and on the detail page's action bar.
  */
-export function VehicleCard({ vehicle, onToggleFavorite }: VehicleCardProps) {
+export function VehicleCard({ vehicle }: VehicleCardProps) {
+  const { isFavorited, toggleFavorite } = useFavorites();
+  const favorited = isFavorited("vehicle", vehicle.slug);
+
   return (
-    <article className="overflow-hidden rounded border border-line bg-parchment">
-      <div className="relative h-44 w-full bg-bark">
-        <VehicleMedia variant={vehicle.mediaVariant} className="h-full w-full" label={`Illustration standing in for a photo of ${vehicle.title}`} />
-        <div className="absolute left-3 top-3">
+    <article className="group overflow-hidden rounded border border-line bg-parchment transition-colors hover:border-line-strong">
+      <div className="relative aspect-[4/3] w-full">
+        <ListingMedia
+          image={vehicle.images[0]!}
+          category="vehicle"
+          fallbackAlt={vehicle.title}
+          className="h-full w-full"
+        />
+        <div className="pointer-events-none absolute inset-0 flex items-start justify-between p-3">
           <VerificationBadge state={vehicle.verificationState} />
+          <span className="rounded-full bg-ink/80 px-2.5 py-1 text-label uppercase text-parchment">
+            {vehicle.condition === "brand new" ? "New" : vehicle.condition === "foreign used" ? "Foreign used" : "Nigerian used"}
+          </span>
         </div>
+        {vehicle.images.length > 1 && (
+          <span className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-ink/70 px-2 py-0.5 text-caption text-parchment">
+            1/{vehicle.images.length}
+          </span>
+        )}
         <button
           type="button"
-          onClick={() => onToggleFavorite(vehicle.slug)}
-          aria-pressed={vehicle.isFavorited}
-          aria-label={vehicle.isFavorited ? "Remove from saved vehicles" : "Save vehicle"}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-parchment/90 text-ink"
+          onClick={() => toggleFavorite("vehicle", vehicle.slug)}
+          aria-pressed={favorited}
+          aria-label={favorited ? "Remove from saved vehicles" : "Save vehicle"}
+          className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-parchment/95 text-ink shadow-float transition-transform active:scale-90"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill={vehicle.isFavorited ? "currentColor" : "none"}
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1.2 4.5 2.5C12 6.2 13.5 5 15.5 5 19 5 21.5 8.5 19.5 12.5 17 16.65 12 21 12 21z" />
-          </svg>
+          <HeartIcon size={17} active filled={favorited} className={favorited ? "text-patina" : undefined} />
         </button>
       </div>
 
-      <div className="px-5 py-4">
-        <p className="font-display text-lg font-semibold text-ink">{formatNaira(vehicle.priceInKobo)}</p>
-        <Link href={`/cars/${vehicle.slug}`} className="mt-1 block text-sm font-semibold text-ink hover:underline">
-          {vehicle.year} {vehicle.make} {vehicle.model}
-        </Link>
-        <p className="mt-0.5 text-xs text-ink-soft">{vehicle.location.label}</p>
+      <div className="flex flex-col gap-1.5 px-3.5 py-3">
+        <p className="text-price text-ink">{formatNaira(vehicle.priceInKobo)}</p>
 
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-line pt-4 text-xs text-ink-soft">
+        <div>
+          <Link href={`/cars/${vehicle.slug}`} className="text-h3 font-semibold text-ink hover:underline">
+            {vehicle.year} {vehicle.make} {vehicle.model}
+          </Link>
+          <p className="mt-0.5 text-body-sm text-ink-soft">{vehicle.location.label}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-line pt-2.5 text-body-sm text-ink-soft">
           <span className="font-semibold text-ink">{formatMileage(vehicle.mileageKm)}</span>
           <span className="capitalize">{vehicle.transmission}</span>
           <span>{vehicle.fuelType}</span>
         </div>
 
-        <div className="mt-4 flex items-center gap-2 text-xs text-ink-soft">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-patina font-mono text-[10px] font-bold text-white">
+        <div className="flex items-center gap-2 text-body-sm text-ink-soft">
+          <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-patina font-mono text-[10px] font-bold text-white">
             {vehicle.listedBy.name
               .split(" ")
               .map((part) => part[0])
               .join("")
               .slice(0, 2)}
           </span>
-          {vehicle.listedBy.name} · {sellerRoleLabel(vehicle.listedBy.role)}
+          <span className="truncate">
+            {vehicle.listedBy.name} <span className="text-clay">·</span> {sellerRoleLabel(vehicle.listedBy.role)}
+          </span>
         </div>
       </div>
     </article>

@@ -1,11 +1,27 @@
-import { ComingSoonPage } from "@/components/marketplace/ComingSoonPage";
+"use client";
 
+import { SignInRequiredPage } from "@/components/marketplace/SignInRequiredPage";
+import { SellACarFlow } from "@/components/listings/SellACarFlow";
+import { useAuth } from "@/lib/auth-context";
+
+/**
+ * Replaces the former ComingSoonPage stub, the same way
+ * app/(marketplace)/list-a-property/page.tsx does for properties.
+ */
 export default function SellACarPage() {
-  return (
-    <ComingSoonPage
-      eyebrow="Listing creation"
-      heading="Vehicle listing creation is being built"
-      description="The guided listing flow, including document upload and verification, is on the way. In the meantime, reach out to us directly if you have a vehicle to sell."
-    />
-  );
+  const { isAuthenticated, user, isRestoringSession } = useAuth();
+
+  if (isRestoringSession) return null;
+
+  if (!isAuthenticated || !user) {
+    return (
+      <SignInRequiredPage
+        eyebrow="Sell a car"
+        heading="Sign in to list a vehicle"
+        description="Listings are tied to your account so buyers know who they are dealing with. Sign in or create an account to get started."
+      />
+    );
+  }
+
+  return <SellACarFlow user={user} />;
 }

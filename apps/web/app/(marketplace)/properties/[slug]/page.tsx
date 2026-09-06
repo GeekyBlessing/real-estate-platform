@@ -1,18 +1,24 @@
 import { notFound } from "next/navigation";
-import { getPropertyBySlug, getAgentBySlug } from "@/lib/mock-data";
+import { getPropertyBySlug, getAgentBySlug, properties } from "@/lib/mock-data";
 import { PropertyGallery } from "@/components/property/PropertyGallery";
 import { PropertyActions } from "@/components/property/PropertyActions";
+import { PropertyCard } from "@/components/property/PropertyCard";
 import { ReportListingLink } from "@/components/property/ReportListingLink";
-import { VerificationDisclosure } from "@/components/verification/VerificationDisclosure";
+import { VerificationBadge } from "@/components/ui/Badge";
+import { VerificationSection } from "@/components/marketplace/VerificationSection";
+import { LocationPreview } from "@/components/marketplace/LocationPreview";
+import { DiscoveryRail } from "@/components/marketplace/DiscoveryRail";
+import { FeatureChips } from "@/components/marketplace/FeatureChips";
+import { ReadMoreText } from "@/components/ui/ReadMoreText";
 import { AgentCard } from "@/components/agent/AgentCard";
 import { formatNaira } from "@/lib/utils";
 
 /**
- * Reading order per Section 11 of the blueprint: what is this, where
- * is it, how much, is it verified, who listed it, what are the
- * features, what can I do next. Contact, Message, and Request
- * inspection stay visible inline on desktop and as a sticky bar on
- * mobile, never behind a menu.
+ * Reading order per the product spec: what is this, where is it, how
+ * much, is it verified, what's it like, is it trustworthy, who listed
+ * it, what do residents say, what else is like it, what can I do
+ * next. Message and Request inspection stay visible inline on desktop
+ * and as a sticky bar on mobile, never behind a menu.
  */
 export default function PropertyDetailPage({ params }: { params: { slug: string } }) {
   const property = getPropertyBySlug(params.slug);
@@ -21,73 +27,99 @@ export default function PropertyDetailPage({ params }: { params: { slug: string 
   const agent = getAgentBySlug(property.listedBy.slug);
   const priceLabel =
     property.listingType === "sale"
-      ? `${formatNaira(property.priceInKobo)}, for sale`
-      : `${formatNaira(property.priceInKobo)}, per ${property.rentPeriod === "month" ? "month" : "year"}`;
+      ? formatNaira(property.priceInKobo)
+      : `${formatNaira(property.priceInKobo)} / ${property.rentPeriod === "month" ? "month" : "year"}`;
+
+  const similar = properties
+    .filter((item) => item.slug !== property.slug && item.propertyType === property.propertyType)
+    .slice(0, 6);
 
   return (
-    <main className="pb-24 lg:pb-0">
-      <div className="px-6 pt-8">
-        <div className="mx-auto max-w-5xl">
-          <PropertyGallery title={property.title} baseVariant={property.mediaVariant} imageCount={property.imageCount} />
-        </div>
-      </div>
+    <main className="pb-40 md:pb-24 lg:pb-10">
+      <PropertyGallery title={property.title} slug={property.slug} images={property.images} />
 
-      <div className="mx-auto max-w-5xl px-6 py-10">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
-          <div>
-            <p className="font-display text-3xl text-ink">{priceLabel}</p>
-            <h1 className="mt-2 text-xl font-semibold text-ink">{property.title}</h1>
-            <p className="mt-1 text-sm text-ink-soft">{property.location.label}</p>
+      <div className="mx-auto max-w-5xl px-5 py-6 sm:px-6">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_340px]">
+          <div className="flex flex-col gap-8">
+            <div>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-price-lg font-bold text-ink">{priceLabel}</p>
+                <VerificationBadge state={property.verificationState} className="mt-1" />
+              </div>
+              <h1 className="mt-1 text-h1 font-semibold text-ink">{property.title}</h1>
+              <p className="mt-1 text-body text-ink-soft">{property.location.label}</p>
 
-            <div className="mt-5 flex gap-6 border-y border-line py-4 text-sm text-ink-soft">
-              <span><strong className="text-ink">{property.bedrooms ?? "N/A"}</strong> beds</span>
-              <span><strong className="text-ink">{property.bathrooms}</strong> baths</span>
-              <span><strong className="text-ink">{property.sizeSqm}</strong> sqm</span>
-              <span className="text-clay">{property.furnishingStatus}</span>
+              <div className="mt-4 flex flex-wrap gap-2 text-body-sm">
+                <span className="rounded-full border border-line-strong bg-parchment px-3 py-1.5 font-semibold text-ink">
+                  {property.bedrooms ?? "N/A"} beds
+                </span>
+                <span className="rounded-full border border-line-strong bg-parchment px-3 py-1.5 font-semibold text-ink">
+                  {property.bathrooms} baths
+                </span>
+                <span className="rounded-full border border-line-strong bg-parchment px-3 py-1.5 font-semibold text-ink">
+                  {property.sizeSqm} sqm
+                </span>
+                <span className="rounded-full border border-line-strong bg-parchment px-3 py-1.5 font-semibold text-ink-soft">
+                  {property.furnishingStatus}
+                </span>
+              </div>
+
+              <div className="mt-5 hidden lg:block">
+                <PropertyActions propertyTitle={property.title} propertySlug={property.slug} />
+              </div>
             </div>
 
-            <div className="mt-6">
-              <VerificationDisclosure state={property.verificationState} detail={property.verificationDetail} />
-            </div>
-
-            <div className="mt-6 hidden lg:block">
-              <PropertyActions propertyTitle={property.title} />
-            </div>
-
-            <section className="mt-10">
-              <h2 className="text-sm font-semibold text-ink">About this property</h2>
-              <p className="mt-2 text-sm leading-relaxed text-ink-soft">{property.description}</p>
+            <section>
+              <h2 className="text-h3 font-semibold text-ink">About this property</h2>
+              <div className="mt-2">
+                <ReadMoreText text={property.description} />
+              </div>
             </section>
 
-            <section className="mt-8">
-              <h2 className="text-sm font-semibold text-ink">Amenities</h2>
-              <ul className="mt-3 grid grid-cols-2 gap-2 text-sm text-ink-soft sm:grid-cols-3">
-                {property.amenities.map((amenity) => (
-                  <li key={amenity} className="flex items-center gap-2">
-                    <span className="h-1 w-1 rounded-full bg-bark" aria-hidden="true" />
-                    {amenity}
-                  </li>
-                ))}
-              </ul>
+            <section>
+              <h2 className="text-h3 font-semibold text-ink">Amenities</h2>
+              <div className="mt-3">
+                <FeatureChips items={property.amenities} />
+              </div>
             </section>
 
-            <section className="mt-8">
-              <h2 className="text-sm font-semibold text-ink">Availability</h2>
-              <p className="mt-2 text-sm text-ink-soft">{property.availability}</p>
+            <VerificationSection state={property.verificationState} detail={property.verificationDetail} category="property" />
+
+            <LocationPreview areaLabel={property.location.label} />
+
+            <section className="lg:hidden">
+              <h2 className="text-h3 font-semibold text-ink">Agent</h2>
+              <div className="mt-3">{agent && <AgentCard agent={agent} />}</div>
             </section>
 
-            <div className="mt-10 border-t border-line pt-6">
+            <section>
+              <h2 className="text-h3 font-semibold text-ink">Resident insights</h2>
+              <p className="mt-2 rounded border border-line bg-paper-deep px-4 py-3 text-body-sm text-ink-soft">
+                Not enough resident feedback yet.
+              </p>
+            </section>
+
+            <div className="border-t border-line pt-5">
               <ReportListingLink />
             </div>
           </div>
 
-          <aside className="flex flex-col gap-4">
-            {agent && <AgentCard agent={agent} />}
-          </aside>
+          <aside className="hidden flex-col gap-4 lg:flex">{agent && <AgentCard agent={agent} />}</aside>
         </div>
+
+        {similar.length > 0 && (
+          <div className="mt-12">
+            <DiscoveryRail
+              title="Similar properties"
+              items={similar}
+              keyFor={(item) => item.slug}
+              renderItem={(item) => <PropertyCard property={item} />}
+            />
+          </div>
+        )}
       </div>
 
-      <PropertyActions propertyTitle={property.title} layout="sticky-mobile" />
+      <PropertyActions propertyTitle={property.title} propertySlug={property.slug} layout="sticky-mobile" />
     </main>
   );
 }

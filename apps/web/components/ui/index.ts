@@ -18,8 +18,8 @@ export type { Column, TableProps } from "./Table";
 export { Modal } from "./Modal";
 export type { ModalProps } from "./Modal";
 
-export { Drawer } from "./Drawer";
-export type { DrawerProps } from "./Drawer";
+export { BottomSheet } from "./BottomSheet";
+export type { BottomSheetProps } from "./BottomSheet";
 
 export { ConfirmDialog } from "./ConfirmDialog";
 export type { ConfirmDialogProps } from "./ConfirmDialog";

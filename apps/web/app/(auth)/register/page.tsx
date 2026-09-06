@@ -2,10 +2,13 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
+import { useAuth } from "@/lib/auth-context";
+import { ApiError } from "@/lib/api-client";
 
 const ROLE_OPTIONS = [
   { value: "tenant", label: "Tenant" },
@@ -16,6 +19,8 @@ const ROLE_OPTIONS = [
 
 export default function RegisterPage() {
   const { showToast } = useToast();
+  const { register } = useAuth();
+  const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -23,28 +28,37 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [phoneError, setPhoneError] = useState("");
+  const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setPhoneError("");
+    setFormError("");
     if (phone && !/^0\d{10}$/.test(phone)) {
       setPhoneError("Enter a valid 11 digit Nigerian number.");
       return;
     }
     setSubmitting(true);
-    // Phase 3 wires this to POST /auth/register, followed by the
-    // email and phone verification flow (Section 8 of the
-    // architecture). Simulated here so the flow is real to review.
-    setTimeout(() => {
+    try {
+      // Real registration now (apps/api's /auth/register): email and
+      // phone verification gating "full standing" (architecture doc
+      // section 8) isn't built yet, so the account can sign in right
+      // away rather than waiting on a verification email that doesn't
+      // exist to send.
+      await register({ fullName, email, phone, role, password });
+      showToast("Account created.", "success");
+      router.push("/");
+    } catch (err) {
+      setFormError(err instanceof ApiError ? err.message : "Something went wrong. Try again.");
+    } finally {
       setSubmitting(false);
-      showToast("Account created. Check your email to verify your address.", "success");
-    }, 700);
+    }
   }
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-ink">Create an account</h1>
+      <h1 className="text-2xl font-semibold text-ink">Create an account</h1>
       <p className="mt-1.5 text-sm text-ink-soft">Search, save properties, and message agents directly.</p>
 
       <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
@@ -87,7 +101,8 @@ export default function RegisterPage() {
           autoComplete="new-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          hint="At least 8 characters."
+          error={formError || undefined}
+          hint={formError ? undefined : "At least 8 characters."}
           className="max-w-none"
           required
         />

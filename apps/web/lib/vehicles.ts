@@ -1,4 +1,4 @@
-import { VehicleDetail } from "@/lib/listings";
+import { VehicleDetail, buildVehicleImages } from "@/lib/listings";
 import { makeLocation } from "@/lib/locations";
 
 /**
@@ -31,6 +31,17 @@ export const VEHICLE_MODELS_BY_MAKE: Record<string, string[]> = {
 
 export const VEHICLE_BODY_TYPES = ["Sedan", "SUV", "Hatchback", "Pickup", "Van", "Coupe"];
 
+/**
+ * Shared between the car search Filters sheet (VehicleFilterDrawer.tsx)
+ * and Sell a car (components/listings/SellACarFlow.tsx), same reason
+ * AMENITIES and FURNISHING_OPTIONS are shared in lib/listings.ts: a
+ * filter facet and the value a seller actually picks when creating a
+ * listing must stay one vocabulary.
+ */
+export const VEHICLE_CONDITIONS = ["Brand new", "Nigerian used", "Foreign used"];
+export const VEHICLE_TRANSMISSIONS = ["Automatic", "Manual"];
+export const VEHICLE_FUEL_TYPES = ["Petrol", "Diesel", "Hybrid", "Electric"];
+
 export const vehicles: VehicleDetail[] = [
   {
     slug: "2021-toyota-camry-xse-abeokuta",
@@ -46,14 +57,13 @@ export const vehicles: VehicleDetail[] = [
     fuelType: "Petrol",
     condition: "foreign used",
     bodyType: "Sedan",
-    mediaVariant: 0,
+    images: buildVehicleImages("Sedan", 0, 6),
     verificationState: "verified",
     listedBy: { slug: "chidi-eze", name: "Chidi Eze", role: "private seller" },
     isFavorited: false,
     description:
       "A well kept XSE trim Camry, second owner, always parked under cover. Recently serviced with new brake pads and a full detail before listing.",
     features: ["Leather seats", "Reverse camera", "Alloy wheels", "Keyless entry", "Sunroof"],
-    imageCount: 6,
     verificationDetail: "Vehicle documents and ownership history reviewed by an administrator on 19 August.",
   },
   {
@@ -70,14 +80,13 @@ export const vehicles: VehicleDetail[] = [
     fuelType: "Petrol",
     condition: "foreign used",
     bodyType: "SUV",
-    mediaVariant: 1,
+    images: buildVehicleImages("SUV", 1, 8),
     verificationState: "verified",
     listedBy: { slug: "autotrust-motors", name: "AutoTrust Motors", role: "dealer" },
     isFavorited: false,
     description:
       "A clean foreign used RX350 with full service history since import. Inspected by AutoTrust Motors before listing, no accident history on record.",
     features: ["Leather seats", "Third row seating", "Navigation system", "Heated seats", "Parking sensors"],
-    imageCount: 8,
     verificationDetail: "Vehicle documents and import papers reviewed by an administrator on 16 August.",
   },
   {
@@ -94,14 +103,13 @@ export const vehicles: VehicleDetail[] = [
     fuelType: "Petrol",
     condition: "brand new",
     bodyType: "Sedan",
-    mediaVariant: 2,
+    images: buildVehicleImages("Sedan", 2, 7),
     verificationState: "pending",
     listedBy: { slug: "autotrust-motors", name: "AutoTrust Motors", role: "dealer" },
     isFavorited: false,
     description:
       "A brand new C300, delivery mileage only, full manufacturer warranty remaining. Available for viewing at the AutoTrust Motors showroom.",
     features: ["Ambient lighting", "Panoramic sunroof", "Adaptive cruise control", "Wireless charging"],
-    imageCount: 7,
     verificationDetail: "Purchase and registration documents submitted 2 days ago, awaiting administrator review.",
   },
   {
@@ -118,14 +126,13 @@ export const vehicles: VehicleDetail[] = [
     fuelType: "Petrol",
     condition: "nigerian used",
     bodyType: "Sedan",
-    mediaVariant: 3,
+    images: buildVehicleImages("Sedan", 3, 5),
     verificationState: "verified",
     listedBy: { slug: "autotrust-motors", name: "AutoTrust Motors", role: "dealer" },
     isFavorited: false,
     description:
       "A Nigerian used Accord with a single previous owner and a documented service history. Tyres replaced within the last six months.",
     features: ["Reverse camera", "Bluetooth audio", "Cruise control", "Alloy wheels"],
-    imageCount: 5,
     verificationDetail: "Vehicle documents and ownership history reviewed by an administrator on 11 August.",
   },
   {
@@ -142,14 +149,13 @@ export const vehicles: VehicleDetail[] = [
     fuelType: "Petrol",
     condition: "foreign used",
     bodyType: "Sedan",
-    mediaVariant: 0,
+    images: buildVehicleImages("Sedan", 0, 4),
     verificationState: "verified",
     listedBy: { slug: "femi-alaba", name: "Femi Alaba", role: "private seller" },
     isFavorited: false,
     description:
       "A low mileage Elantra, personally imported and driven by one owner since arrival. Comes with the original import documents.",
     features: ["Reverse camera", "Bluetooth audio", "Alloy wheels"],
-    imageCount: 4,
     verificationDetail: "Vehicle documents and ownership history reviewed by an administrator on 22 August.",
   },
   {
@@ -166,14 +172,59 @@ export const vehicles: VehicleDetail[] = [
     fuelType: "Petrol",
     condition: "nigerian used",
     bodyType: "SUV",
-    mediaVariant: 1,
+    images: buildVehicleImages("SUV", 1, 3),
     verificationState: "unverified",
     listedBy: { slug: "autotrust-motors", name: "AutoTrust Motors", role: "dealer" },
     isFavorited: false,
     description: "A seven seater Explorer, sold as seen. Mechanically sound but due a full service soon.",
     features: ["Third row seating", "Roof rails"],
-    imageCount: 3,
     verificationDetail: "No vehicle documents have been submitted yet.",
+  },
+  {
+    slug: "2019-kia-sportage-abeokuta",
+    title: "2019 Kia Sportage",
+    category: "vehicle",
+    location: makeLocation({ stateSlug: "ogun", citySlug: "abeokuta", areaSlug: "oke-ilewo" }),
+    make: "Kia",
+    model: "Sportage",
+    year: 2019,
+    priceInKobo: 1_150_000_000,
+    mileageKm: 84_000,
+    transmission: "automatic",
+    fuelType: "Petrol",
+    condition: "nigerian used",
+    bodyType: "SUV",
+    images: buildVehicleImages("SUV", 2, 4),
+    verificationState: "verified",
+    listedBy: { slug: "chidi-eze", name: "Chidi Eze", role: "private seller" },
+    isFavorited: false,
+    description:
+      "A single owner Sportage, driven mostly within Abeokuta and serviced at the same workshop since purchase. Tyres and battery replaced this year.",
+    features: ["Reverse camera", "Bluetooth audio", "Alloy wheels", "Roof rails"],
+    verificationDetail: "Vehicle documents and ownership history reviewed by an administrator on 24 August.",
+  },
+  {
+    slug: "2017-nissan-altima-lekki",
+    title: "2017 Nissan Altima",
+    category: "vehicle",
+    location: makeLocation({ stateSlug: "lagos", citySlug: "lagos", areaSlug: "lekki-phase-1" }),
+    make: "Nissan",
+    model: "Altima",
+    year: 2017,
+    priceInKobo: 890_000_000,
+    mileageKm: 110_000,
+    transmission: "automatic",
+    fuelType: "Petrol",
+    condition: "nigerian used",
+    bodyType: "Sedan",
+    images: buildVehicleImages("Sedan", 1, 4),
+    verificationState: "verified",
+    listedBy: { slug: "autotrust-motors", name: "AutoTrust Motors", role: "dealer" },
+    isFavorited: false,
+    description:
+      "A dependable Altima inspected and reconditioned by AutoTrust Motors before listing, with a fresh service and new brake pads.",
+    features: ["Reverse camera", "Cruise control", "Alloy wheels"],
+    verificationDetail: "Vehicle documents and ownership history reviewed by an administrator on 25 August.",
   },
 ];
 

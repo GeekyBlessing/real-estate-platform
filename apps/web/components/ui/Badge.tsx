@@ -8,7 +8,14 @@ export type VerificationState =
   | "flagged"
   | "suspended";
 
-const stateStyles: Record<VerificationState, string> = {
+/**
+ * Exported so VerificationDisclosure (components/verification/VerificationDisclosure.tsx)
+ * reuses the same style and label maps instead of keeping its own
+ * copy: a badge and the full disclosure panel it expands into should
+ * never be able to drift out of sync on what a state looks like or
+ * is called.
+ */
+export const verificationStateStyles: Record<VerificationState, string> = {
   unverified: "bg-paper-deep text-bark",
   pending: "bg-pending-bg text-pending",
   verified: "bg-verified-bg text-verified",
@@ -17,7 +24,7 @@ const stateStyles: Record<VerificationState, string> = {
   suspended: "bg-neutral-bg text-neutral",
 };
 
-const stateLabels: Record<VerificationState, string> = {
+export const verificationStateLabels: Record<VerificationState, string> = {
   unverified: "Unverified",
   pending: "Verification pending",
   verified: "Verified",
@@ -27,14 +34,15 @@ const stateLabels: Record<VerificationState, string> = {
 };
 
 /**
- * The one line of copy every badge carries, per the product spec:
- * a verification badge is a set of completed checks, never a legal
- * guarantee. Surface this in a tooltip or adjacent help text
- * wherever VerificationBadge is used at a decision point (property
- * detail page, agent profile), not just on a buried terms page.
+ * The one line of copy every verification surface carries, per the
+ * product spec: a verification badge is a set of completed checks,
+ * never a legal guarantee. Surfaced in VerificationDisclosure's
+ * expanded panel wherever a badge is used at a decision point
+ * (property detail page, agent profile), not just on a buried terms
+ * page.
  */
 export const VERIFICATION_DISCLAIMER =
-  "Verification confirms specific documents and checks were reviewed. It does not guarantee legal ownership or eliminate the risk of fraud.";
+  "Verification confirms specific documents and checks were reviewed. It does not guarantee legal ownership, safety, or that a transaction cannot be fraudulent.";
 
 export interface VerificationBadgeProps {
   state: VerificationState;
@@ -46,12 +54,12 @@ export function VerificationBadge({ state, className }: VerificationBadgeProps) 
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full py-1 pl-2 pr-2.5 text-xs font-semibold",
-        stateStyles[state],
+        verificationStateStyles[state],
         className
       )}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
-      {stateLabels[state]}
+      {verificationStateLabels[state]}
     </span>
   );
 }

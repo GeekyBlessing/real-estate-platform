@@ -1,88 +1,118 @@
-import { Hero } from "@/components/marketplace/Hero";
-import { PropertyGrid } from "@/components/marketplace/PropertyGrid";
-import { VehicleGrid } from "@/components/marketplace/VehicleGrid";
+"use client";
+
+import { useMemo } from "react";
+import { HomeHeader } from "@/components/marketplace/HomeHeader";
+import { CategoryTile } from "@/components/marketplace/CategoryTile";
+import { DiscoveryRail } from "@/components/marketplace/DiscoveryRail";
 import { TrustExplainer } from "@/components/marketplace/TrustExplainer";
-import { LocationStrip } from "@/components/marketplace/LocationStrip";
-import { Button } from "@/components/ui/Button";
-import Link from "next/link";
+import { PropertyCard } from "@/components/property/PropertyCard";
+import { VehicleCard } from "@/components/vehicle/VehicleCard";
+import { useSelectedLocation } from "@/lib/location-context";
 import { properties } from "@/lib/mock-data";
 import { vehicles } from "@/lib/vehicles";
 
 /**
- * Homepage structure per Section 8 of the blueprint: hero with the
- * search bar embedded, a results preview so the page proves inventory
- * exists before explaining anything, the verification component shown
- * doing its job, a location strip scoped to real inventory, and a
- * closing call to action. No decorative section that doesn't earn
- * its place. Property and vehicle previews get their own section
- * each, since a shared heading and grid would bury whichever category
- * loaded second.
+ * Rebuilt as an app discovery feed rather than a website landing
+ * page: HomeHeader owns "where am I, what can I do next" (greeting,
+ * location, notifications, account, search entry), the two category
+ * tiles answer "what can I find," and the rails below answer "what's
+ * near me," scoped to whichever launch city is selected.
+ *
+ * Four rails, not five: an earlier version also had a "Popular in
+ * {city}" rail that was just nearYou reversed, the same listings
+ * relabeled as if they were independently ranked. With no real view
+ * or enquiry counts yet, there is no honest signal behind "popular,"
+ * so that rail is gone rather than kept under a misleading label.
+ * "Newest listings" stays because it does not pretend to be anything
+ * other than what it is: this seed list's own order, last in first
+ * shown, standing in for a real createdAt until listings come from
+ * the backend.
  */
 export default function HomePage() {
-  const previewProperties = properties.slice(0, 3);
-  const previewVehicles = vehicles.slice(0, 3);
+  const { city } = useSelectedLocation();
+
+  const nearYou = useMemo(
+    () => properties.filter((property) => property.location.citySlug === city.citySlug),
+    [city]
+  );
+  const carsInCity = useMemo(
+    () => vehicles.filter((vehicle) => vehicle.location.citySlug === city.citySlug),
+    [city]
+  );
+  const newestListings = useMemo(() => [...properties].slice(-4).reverse(), []);
+  const verifiedNearYou = useMemo(
+    () => nearYou.filter((property) => property.verificationState === "verified"),
+    [nearYou]
+  );
 
   return (
     <main>
-      <Hero />
+      <HomeHeader />
 
-      <section className="px-6 py-16">
+      <section className="px-6 py-7">
         <div className="mx-auto max-w-5xl">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-2xl text-ink">Recently listed properties</h2>
-            <Link href="/search" className="text-sm font-semibold text-patina hover:text-patina-deep">
-              View all properties
-            </Link>
-          </div>
-          <div className="mt-8">
-            <PropertyGrid properties={previewProperties} />
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-line px-6 py-16">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-2xl text-ink">Recently listed vehicles</h2>
-            <Link href="/cars" className="text-sm font-semibold text-patina hover:text-patina-deep">
-              View all vehicles
-            </Link>
-          </div>
-          <div className="mt-8">
-            <VehicleGrid vehicles={previewVehicles} />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <CategoryTile
+              href="/search"
+              title="Property"
+              description="Rent or buy, verified before it's listed"
+              variant="property"
+            />
+            <CategoryTile
+              href="/cars"
+              title="Cars"
+              description="Verified sellers and dealers"
+              variant="vehicle"
+            />
           </div>
         </div>
       </section>
 
-      <TrustExplainer />
-      <LocationStrip />
-
-      <section className="px-6 py-16">
-        <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2">
-          <div className="flex flex-col items-start gap-4 rounded border border-line bg-paper-deep p-8 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="font-display text-xl text-ink">Have a property to list?</h2>
-              <p className="mt-1.5 text-sm text-ink-soft">
-                Verified listings get more enquiries. Submit your documents once, they carry across every listing you add.
-              </p>
-            </div>
-            <Link href="/list-a-property">
-              <Button size="md">List a property</Button>
-            </Link>
-          </div>
-          <div className="flex flex-col items-start gap-4 rounded border border-line bg-paper-deep p-8 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="font-display text-xl text-ink">Have a car to sell?</h2>
-              <p className="mt-1.5 text-sm text-ink-soft">
-                Verified sellers get more enquiries. Submit your documents once, they carry across every listing you add.
-              </p>
-            </div>
-            <Link href="/sell-a-car">
-              <Button size="md">Sell a car</Button>
-            </Link>
-          </div>
+      <div className="flex flex-col gap-10 px-6 py-3">
+        <div className="mx-auto w-full max-w-5xl">
+          <DiscoveryRail
+            title={`Near you in ${city.city}`}
+            seeAllHref={`/search?location=${encodeURIComponent(city.city)}`}
+            items={nearYou}
+            keyFor={(property) => property.slug}
+            renderItem={(property) => <PropertyCard property={property} />}
+          />
         </div>
-      </section>
+
+        <div className="mx-auto w-full max-w-5xl">
+          <DiscoveryRail
+            title={`Cars in ${city.city}`}
+            seeAllHref={`/cars?location=${encodeURIComponent(city.city)}`}
+            items={carsInCity}
+            keyFor={(vehicle) => vehicle.slug}
+            renderItem={(vehicle) => <VehicleCard vehicle={vehicle} />}
+          />
+        </div>
+
+        <div className="mx-auto w-full max-w-5xl">
+          <DiscoveryRail
+            title={`Verified in ${city.city}`}
+            seeAllHref={`/search?location=${encodeURIComponent(city.city)}`}
+            items={verifiedNearYou}
+            keyFor={(property) => property.slug}
+            renderItem={(property) => <PropertyCard property={property} />}
+          />
+        </div>
+
+        <div className="mx-auto w-full max-w-5xl">
+          <DiscoveryRail
+            title="Newest listings"
+            seeAllHref="/search"
+            items={newestListings}
+            keyFor={(property) => property.slug}
+            renderItem={(property) => <PropertyCard property={property} />}
+          />
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <TrustExplainer />
+      </div>
     </main>
   );
 }

@@ -27,7 +27,7 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
         aria-labelledby="modal-title"
         className="w-full max-w-md rounded bg-parchment p-6 shadow-modal"
       >
-        <h3 id="modal-title" className="font-display text-lg font-semibold text-ink">
+        <h3 id="modal-title" className="text-lg font-semibold text-ink">
           {title}
         </h3>
         <div className="mt-3 text-sm text-ink-soft">{children}</div>

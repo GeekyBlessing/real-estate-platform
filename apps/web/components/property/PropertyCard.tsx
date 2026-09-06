@@ -1,11 +1,16 @@
+"use client";
+
 import Link from "next/link";
 import { VerificationBadge } from "@/components/ui/Badge";
-import { PropertyMedia } from "./PropertyMedia";
+import { ListingMedia } from "@/components/ui/ListingMedia";
 import { formatNaira } from "@/lib/utils";
-import { ListingBase, sellerRoleLabel } from "@/lib/listings";
+import { ListingBase, PropertyType, sellerRoleLabel } from "@/lib/listings";
+import { useFavorites } from "@/lib/favorites-context";
+import { HeartIcon } from "@/components/ui/icons";
 
 export interface PropertyCardData extends ListingBase {
   category: "property";
+  propertyType: PropertyType;
   listingType: "rent" | "sale";
   rentPeriod?: "year" | "month";
   bedrooms: number | null;
@@ -15,70 +20,83 @@ export interface PropertyCardData extends ListingBase {
 
 export interface PropertyCardProps {
   property: PropertyCardData;
-  onToggleFavorite: (slug: string) => void;
 }
 
 /**
- * Presentational only, no data fetching. Phase 4 wires this to the
- * properties API; Phase 5's search results grid and the favorites
- * list both render the same card so the two experiences never drift
- * apart visually.
+ * Presentational, but reads and writes favorites through the shared
+ * FavoritesProvider (lib/favorites-context.tsx) directly rather than
+ * taking isFavorited/onToggleFavorite as props, so a card behaves the
+ * same whether it's rendered in a search grid, a homepage rail, or
+ * the Saved tab, with no risk of the toggle drifting out of sync with
+ * the grid it happens to be sitting in.
  */
-export function PropertyCard({ property, onToggleFavorite }: PropertyCardProps) {
+export function PropertyCard({ property }: PropertyCardProps) {
+  const { isFavorited, toggleFavorite } = useFavorites();
+  const favorited = isFavorited("property", property.slug);
+
   const priceLabel =
     property.listingType === "sale"
-      ? `${formatNaira(property.priceInKobo)} · For sale`
+      ? `${formatNaira(property.priceInKobo)}`
       : `${formatNaira(property.priceInKobo)} / ${property.rentPeriod === "month" ? "month" : "year"}`;
 
   return (
-    <article className="overflow-hidden rounded border border-line bg-parchment">
-      <div className="relative h-44 w-full bg-bark">
-        <PropertyMedia variant={property.mediaVariant} className="h-full w-full" label={`Illustration standing in for a photo of ${property.title}`} />
-        <div className="absolute left-3 top-3">
+    <article className="group overflow-hidden rounded border border-line bg-parchment transition-colors hover:border-line-strong">
+      <div className="relative aspect-[4/3] w-full">
+        <ListingMedia
+          image={property.images[0]!}
+          category="property"
+          fallbackAlt={property.title}
+          className="h-full w-full"
+        />
+        <div className="pointer-events-none absolute inset-0 flex items-start justify-between p-3">
           <VerificationBadge state={property.verificationState} />
+          {property.listingType === "sale" ? (
+            <span className="rounded-full bg-ink/80 px-2.5 py-1 text-label uppercase text-parchment">For sale</span>
+          ) : null}
         </div>
+        {property.images.length > 1 && (
+          <span className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-ink/70 px-2 py-0.5 text-caption text-parchment">
+            1/{property.images.length}
+          </span>
+        )}
         <button
           type="button"
-          onClick={() => onToggleFavorite(property.slug)}
-          aria-pressed={property.isFavorited}
-          aria-label={property.isFavorited ? "Remove from saved properties" : "Save property"}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-parchment/90 text-ink"
+          onClick={() => toggleFavorite("property", property.slug)}
+          aria-pressed={favorited}
+          aria-label={favorited ? "Remove from saved properties" : "Save property"}
+          className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-parchment/95 text-ink shadow-float transition-transform active:scale-90"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill={property.isFavorited ? "currentColor" : "none"}
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1.2 4.5 2.5C12 6.2 13.5 5 15.5 5 19 5 21.5 8.5 19.5 12.5 17 16.65 12 21 12 21z" />
-          </svg>
+          <HeartIcon size={17} active filled={favorited} className={favorited ? "text-patina" : undefined} />
         </button>
       </div>
 
-      <div className="px-5 py-4">
-        <p className="font-display text-lg font-semibold text-ink">{priceLabel}</p>
-        <Link href={`/properties/${property.slug}`} className="mt-1 block text-sm font-semibold text-ink hover:underline">
-          {property.title}
-        </Link>
-        <p className="mt-0.5 text-xs text-ink-soft">{property.location.label}</p>
+      <div className="flex flex-col gap-1.5 px-3.5 py-3">
+        <p className="text-price text-ink">{priceLabel}</p>
 
-        <div className="mt-4 flex gap-4 border-t border-line pt-4 text-xs text-ink-soft">
-          <span><strong className="text-ink">{property.bedrooms ?? "N/A"}</strong> beds</span>
-          <span><strong className="text-ink">{property.bathrooms}</strong> baths</span>
-          <span><strong className="text-ink">{property.sizeSqm}</strong> sqm</span>
+        <div>
+          <Link href={`/properties/${property.slug}`} className="text-h3 font-semibold text-ink hover:underline">
+            {property.title}
+          </Link>
+          <p className="mt-0.5 text-body-sm text-ink-soft">{property.location.label}</p>
         </div>
 
-        <div className="mt-4 flex items-center gap-2 text-xs text-ink-soft">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-patina font-mono text-[10px] font-bold text-white">
+        <div className="flex gap-4 border-t border-line pt-2.5 text-body-sm text-ink-soft">
+          <span><strong className="font-semibold text-ink">{property.bedrooms ?? "N/A"}</strong> beds</span>
+          <span><strong className="font-semibold text-ink">{property.bathrooms}</strong> baths</span>
+          <span><strong className="font-semibold text-ink">{property.sizeSqm}</strong> sqm</span>
+        </div>
+
+        <div className="flex items-center gap-2 text-body-sm text-ink-soft">
+          <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-patina font-mono text-[10px] font-bold text-white">
             {property.listedBy.name
               .split(" ")
               .map((part) => part[0])
               .join("")
               .slice(0, 2)}
           </span>
-          {property.listedBy.name} · {sellerRoleLabel(property.listedBy.role)}
+          <span className="truncate">
+            {property.listedBy.name} <span className="text-clay">·</span> {sellerRoleLabel(property.listedBy.role)}
+          </span>
         </div>
       </div>
     </article>

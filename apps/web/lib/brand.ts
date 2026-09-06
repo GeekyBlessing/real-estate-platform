@@ -1,17 +1,18 @@
 /**
- * The final company name has not been chosen yet. Every place in the
- * application that needs to show the brand reads from here instead
- * of writing the name directly, so swapping the real name in later
- * is a one line change in this file, not a search and replace across
- * the codebase.
+ * OWNIT is the working brand name. Every place in the application
+ * that needs to show the brand reads from here instead of writing
+ * the name directly, so swapping the name again later is a one line
+ * change in this file, not a search and replace across the codebase.
  *
- * Update these three values once the client confirms the brand, and
- * nothing else needs to change.
+ * The tagline now leads with the two launch markets (Section: Location
+ * First) rather than a country-wide claim, since the product is not
+ * launching with real coverage everywhere in Nigeria and should not
+ * read as if it is.
  */
-export const APP_NAME = "Ile";
+export const APP_NAME = "OWNIT";
 
 export const APP_TAGLINE =
-  "Search verified properties and cars across Nigeria, and talk to the person who owns or manages them.";
+  "Verified properties and cars in Lagos and Abeokuta, and a direct line to the person who owns or manages them.";
 
 export const APP_DESCRIPTION =
-  "Search verified properties and cars across Nigeria, and talk to the person who owns or manages them.";
+  "Verified properties and cars in Lagos and Abeokuta, and a direct line to the person who owns or manages them.";

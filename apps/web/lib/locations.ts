@@ -220,6 +220,26 @@ export const POPULAR_CITIES: PopularCity[] = [
 ];
 
 /**
+ * The two markets this launch is actually designed for. STATES above
+ * stays the full, scalable hierarchy (so seeding a third city later
+ * is one entry there, not a rewrite), but the product experience,
+ * the location switcher, the homepage greeting, and the discovery
+ * rails all read from this narrower list on purpose: the brief is
+ * explicit that the first release should feel intentionally built
+ * for Lagos and Abeokuta, not like thin, decorative coverage of every
+ * Nigerian city. Add a third entry here only once it has the same
+ * real seed listings and named areas the first two do.
+ */
+export const LAUNCH_CITIES: PopularCity[] = [
+  { city: "Lagos", citySlug: "lagos", stateSlug: "lagos" },
+  { city: "Abeokuta", citySlug: "abeokuta", stateSlug: "ogun" },
+];
+
+export function isLaunchCity(citySlug: string): boolean {
+  return LAUNCH_CITIES.some((city) => city.citySlug === citySlug);
+}
+
+/**
  * True when a free text query matches a location's area, city, or
  * state name. Backs the search page's location filtering until a
  * real backend query replaces client side filtering of the full

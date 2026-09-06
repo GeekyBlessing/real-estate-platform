@@ -1,4 +1,5 @@
 import { Button } from "./Button";
+import { AlertCircleIcon } from "@/components/ui/icons";
 
 export interface ErrorStateProps {
   title?: string;
@@ -18,10 +19,7 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div role="alert" className="flex flex-col items-center gap-3 rounded border border-line bg-parchment px-6 py-10 text-center">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-danger" aria-hidden="true">
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 8v5M12 16h.01" />
-      </svg>
+      <AlertCircleIcon size={32} className="text-danger" />
       <p className="text-sm font-semibold text-ink">{title}</p>
       <p className="max-w-xs text-xs text-ink-soft">{description}</p>
       {onRetry && (

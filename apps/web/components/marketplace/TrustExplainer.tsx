@@ -26,7 +26,7 @@ export function TrustExplainer() {
     <section className="border-b border-line px-6 py-16">
       <div className="mx-auto max-w-5xl">
         <p className="font-mono text-xs uppercase tracking-wider text-bark">How verification works</p>
-        <h2 className="mt-2 font-display text-2xl text-ink">A badge that means something specific.</h2>
+        <h2 className="mt-2 text-2xl font-semibold text-ink">A badge that means something specific.</h2>
 
         <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
           {STEPS.map((step, index) => (

@@ -1,30 +1,30 @@
 "use client";
 
-import { useId, useState } from "react";
-import { VerificationState } from "@/components/ui/Badge";
+import { useState } from "react";
+import {
+  VerificationState,
+  verificationStateStyles as stateStyles,
+  verificationStateLabels as stateLabels,
+  VERIFICATION_DISCLAIMER,
+} from "@/components/ui/Badge";
 import { ShieldIcon } from "./ShieldIcon";
+import { BottomSheet } from "@/components/ui/BottomSheet";
 import { cn } from "@/lib/utils";
 
-const stateStyles: Record<VerificationState, string> = {
-  unverified: "bg-paper-deep text-bark",
-  pending: "bg-pending-bg text-pending",
-  verified: "bg-verified-bg text-verified",
-  rejected: "bg-danger-bg text-danger",
-  flagged: "bg-danger-bg text-danger",
-  suspended: "bg-neutral-bg text-neutral",
+/**
+ * The general explanation for what each state means, shown above the
+ * listing-specific detail string a caller passes in. Verification
+ * should never just say "Verified" with nothing behind it; this is
+ * the sentence that answers "verified as what, exactly."
+ */
+const stateExplanations: Record<VerificationState, string> = {
+  unverified: "No identity, ownership, or listing documents have been submitted for review yet.",
+  pending: "Documents have been submitted and are waiting on an administrator's review.",
+  verified: "The identity, ownership, or listing documents behind this have been reviewed by an administrator.",
+  rejected: "Submitted documents did not pass review.",
+  flagged: "This listing is under review following a report from another user.",
+  suspended: "This account or listing has been suspended pending further review.",
 };
-
-const stateLabels: Record<VerificationState, string> = {
-  unverified: "Unverified",
-  pending: "Verification pending",
-  verified: "Verified",
-  rejected: "Rejected",
-  flagged: "Flagged",
-  suspended: "Suspended",
-};
-
-export const VERIFICATION_DISCLAIMER =
-  "Verification confirms specific documents and checks were reviewed. It does not guarantee legal ownership or eliminate the risk of fraud.";
 
 export interface VerificationDisclosureProps {
   state: VerificationState;
@@ -42,43 +42,29 @@ export interface VerificationDisclosureProps {
  */
 export function VerificationDisclosure({ state, detail, className }: VerificationDisclosureProps) {
   const [open, setOpen] = useState(false);
-  const panelId = useId();
 
   return (
-    <div className={cn("relative inline-block", className)}>
+    <>
       <button
         type="button"
-        onClick={() => setOpen((value) => !value)}
-        aria-expanded={open}
-        aria-controls={panelId}
+        onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
         className={cn(
           "inline-flex items-center gap-2 rounded-full py-1.5 pl-2.5 pr-3.5 text-sm font-semibold",
-          stateStyles[state]
+          stateStyles[state],
+          className
         )}
       >
         <ShieldIcon state={state} />
         {stateLabels[state]}
+        <span className="text-xs font-normal underline decoration-current/40 underline-offset-2">What does this mean?</span>
       </button>
 
-      {open && (
-        <div
-          id={panelId}
-          role="dialog"
-          aria-label={`${stateLabels[state]} details`}
-          className="absolute left-0 top-full z-20 mt-2 w-80 rounded bg-parchment p-5 shadow-float"
-        >
-          <p className="text-sm font-semibold text-ink">{stateLabels[state]}</p>
-          <p className="mt-1.5 font-mono text-xs text-bark">{detail}</p>
-          <p className="mt-4 border-t border-line pt-4 text-xs text-ink-soft">{VERIFICATION_DISCLAIMER}</p>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="mt-4 text-xs font-semibold text-patina hover:text-patina-deep"
-          >
-            Close
-          </button>
-        </div>
-      )}
-    </div>
+      <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={stateLabels[state]}>
+        <p className="text-body-sm text-ink-soft">{stateExplanations[state]}</p>
+        <p className="mt-3 border-t border-line pt-3 font-mono text-xs text-bark">{detail}</p>
+        <p className="mt-4 border-t border-line pt-4 text-body-sm text-ink-soft">{VERIFICATION_DISCLAIMER}</p>
+      </BottomSheet>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import { InputHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
+import { SearchIcon, CloseIcon } from "@/components/ui/icons";
 
 export interface SearchInputProps extends InputHTMLAttributes<HTMLInputElement> {
   onClear?: () => void;
@@ -11,19 +12,10 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
 ) {
   return (
     <div className="relative w-full">
-      <svg
-        aria-hidden="true"
-        width="15"
-        height="15"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
+      <SearchIcon
+        size={15}
         className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-bark"
-      >
-        <circle cx="11" cy="11" r="7" />
-        <path d="M21 21l-4.3-4.3" />
-      </svg>
+      />
       <input
         ref={ref}
         type="search"
@@ -43,9 +35,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
           aria-label="Clear search"
           className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-bark hover:bg-paper-deep hover:text-ink"
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
+          <CloseIcon size={13} />
         </button>
       ) : null}
     </div>

@@ -1,93 +1,103 @@
 "use client";
 
-import { useState } from "react";
-import { VehicleMedia } from "./VehicleMedia";
-import { cn } from "@/lib/utils";
+import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ListingMedia } from "@/components/ui/ListingMedia";
+import { ListingImageRef } from "@/lib/listings";
+import { useFavorites } from "@/lib/favorites-context";
+import { ChevronLeftIcon as BackIcon, ShareIcon, HeartIcon } from "@/components/ui/icons";
 
 export interface VehicleGalleryProps {
   title: string;
-  baseVariant: number;
-  imageCount: number;
+  slug: string;
+  images: ListingImageRef[];
 }
 
 /**
- * The vehicle equivalent of PropertyGallery (components/property/PropertyGallery.tsx).
- * Same structure, since a large hero image with a supporting grid and
- * a fullscreen view works the same way for a car as for a property;
- * only the illustration underneath (VehicleMedia instead of
- * PropertyMedia) is different.
+ * The vehicle equivalent of PropertyGallery (components/property/PropertyGallery.tsx):
+ * a full-bleed swipeable hero with Back/Share/Save as overlay controls
+ * and a 1/N counter, rather than a desktop photo grid.
  */
-export function VehicleGallery({ title, baseVariant, imageCount }: VehicleGalleryProps) {
-  const [fullscreen, setFullscreen] = useState(false);
+export function VehicleGallery({ title, slug, images }: VehicleGalleryProps) {
+  const router = useRouter();
+  const { isFavorited, toggleFavorite } = useFavorites();
+  const favorited = isFavorited("vehicle", slug);
   const [activeIndex, setActiveIndex] = useState(0);
-  const supportingCount = Math.min(imageCount - 1, 4);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const imageCount = images.length;
+
+  function handleScroll() {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const index = Math.round(el.scrollLeft / el.clientWidth);
+    if (index !== activeIndex) setActiveIndex(index);
+  }
+
+  function handleShare() {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator.share({ title, url }).catch(() => undefined);
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(url).catch(() => undefined);
+    }
+  }
 
   return (
-    <div>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-4 sm:grid-rows-2">
-        <button
-          type="button"
-          onClick={() => {
-            setActiveIndex(0);
-            setFullscreen(true);
-          }}
-          className="relative col-span-1 row-span-2 h-64 overflow-hidden rounded sm:col-span-2 sm:h-full"
-        >
-          <VehicleMedia variant={baseVariant} className="h-full w-full" label={`Main illustration for ${title}`} />
-        </button>
-        {Array.from({ length: supportingCount }).map((_, index) => (
-          <button
-            key={index}
-            type="button"
-            onClick={() => {
-              setActiveIndex(index + 1);
-              setFullscreen(true);
-            }}
-            className="relative hidden h-full overflow-hidden rounded sm:block"
-          >
-            <VehicleMedia variant={baseVariant + index + 1} className="h-full w-full" label={`Supporting illustration ${index + 1} for ${title}`} />
-            {index === supportingCount - 1 && imageCount > supportingCount + 1 && (
-              <span className="absolute inset-0 flex items-center justify-center bg-ink/55 font-mono text-sm text-parchment">
-                +{imageCount - supportingCount - 1} more
-              </span>
-            )}
-          </button>
+    <div className="relative">
+      <div
+        ref={scrollerRef}
+        onScroll={handleScroll}
+        className="flex aspect-[4/3] snap-x snap-mandatory overflow-x-auto sm:aspect-[16/9] sm:rounded"
+      >
+        {images.map((image, index) => (
+          <div key={index} className="relative h-full w-full flex-none snap-start">
+            <ListingMedia
+              image={image}
+              category="vehicle"
+              fallbackAlt={index === 0 ? title : `${title}, photo ${index + 1}`}
+              priority={index === 0}
+              className="h-full w-full"
+            />
+          </div>
         ))}
       </div>
-      <p className="mt-2 font-mono text-xs text-bark">{imageCount} images</p>
 
-      {fullscreen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${title} gallery`}
-          className="fixed inset-0 z-50 flex flex-col bg-ink/95 p-4"
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between p-3 sm:p-4">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Back"
+          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-ink/55 text-parchment backdrop-blur-sm transition-transform active:scale-90"
         >
-          <div className="flex items-center justify-between text-parchment">
-            <span className="font-mono text-xs">
-              {activeIndex + 1} / {imageCount}
+          <BackIcon size={19} active />
+        </button>
+        <div className="pointer-events-auto flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShare}
+            aria-label="Share this listing"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-ink/55 text-parchment backdrop-blur-sm transition-transform active:scale-90"
+          >
+            <ShareIcon size={17} active />
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleFavorite("vehicle", slug)}
+            aria-pressed={favorited}
+            aria-label={favorited ? "Remove from saved vehicles" : "Save vehicle"}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-ink/55 text-parchment backdrop-blur-sm transition-transform active:scale-90"
+          >
+            <span className={favorited ? "text-patina" : undefined}>
+              <HeartIcon size={18} active filled={favorited} />
             </span>
-            <button type="button" onClick={() => setFullscreen(false)} aria-label="Close gallery" className="rounded-full p-2 hover:bg-parchment/10">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div className="relative mt-4 flex-1 overflow-hidden rounded">
-            <VehicleMedia variant={baseVariant + activeIndex} className="h-full w-full" label={`Full screen illustration ${activeIndex + 1}`} />
-          </div>
-          <div className="mt-4 flex justify-center gap-2">
-            {Array.from({ length: imageCount }).map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => setActiveIndex(index)}
-                aria-label={`Show image ${index + 1}`}
-                className={cn("h-1.5 w-6 rounded-full", index === activeIndex ? "bg-patina" : "bg-parchment/30")}
-              />
-            ))}
-          </div>
+          </button>
         </div>
+      </div>
+
+      {imageCount > 1 && (
+        <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-ink/60 px-2.5 py-1 text-caption font-semibold text-parchment backdrop-blur-sm">
+          {activeIndex + 1} / {imageCount}
+        </span>
       )}
     </div>
   );

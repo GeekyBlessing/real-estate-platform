@@ -2,36 +2,44 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
+import { useAuth } from "@/lib/auth-context";
+import { ApiError } from "@/lib/api-client";
 
 export default function LoginPage() {
   const { showToast } = useToast();
+  const { login } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError("");
+    if (!email || !password) {
+      setError("Enter your email and password to continue.");
+      return;
+    }
     setSubmitting(true);
-    // Phase 3 wires this to POST /auth/login. Simulated here so the
-    // error and loading states are real to review now.
-    setTimeout(() => {
-      setSubmitting(false);
-      if (!email || !password) {
-        setError("Enter your email and password to continue.");
-        return;
-      }
+    try {
+      await login(email, password);
       showToast("Signed in.", "success");
-    }, 600);
+      router.push("/");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong. Try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-ink">Sign in</h1>
+      <h1 className="text-2xl font-semibold text-ink">Sign in</h1>
       <p className="mt-1.5 text-sm text-ink-soft">Access your enquiries, saved properties, and listings.</p>
 
       <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">

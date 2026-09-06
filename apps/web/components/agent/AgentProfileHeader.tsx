@@ -20,7 +20,7 @@ export function AgentProfileHeader({ agent }: AgentProfileHeaderProps) {
             {agent.name.split(" ").map((part) => part[0]).join("").slice(0, 2)}
           </span>
           <div>
-            <h1 className="font-display text-2xl text-ink">{agent.name}</h1>
+            <h1 className="text-2xl font-semibold text-ink">{agent.name}</h1>
             <p className="mt-0.5 text-sm text-ink-soft">{agent.title}</p>
             <div className="mt-3">
               <VerificationDisclosure state={agent.verificationState} detail={agent.verificationDetail} />
@@ -36,15 +36,15 @@ export function AgentProfileHeader({ agent }: AgentProfileHeaderProps) {
       <dl className="mx-auto mt-8 grid max-w-4xl grid-cols-3 gap-6 border-t border-line pt-6 sm:max-w-xs sm:grid-cols-3">
         <div>
           <dt className="font-mono text-xs uppercase tracking-wider text-bark">Listings</dt>
-          <dd className="mt-1 font-display text-xl tabular-nums text-ink">{agent.activeListings}</dd>
+          <dd className="mt-1 text-xl font-semibold tabular-nums text-ink">{agent.activeListings}</dd>
         </div>
         <div>
           <dt className="font-mono text-xs uppercase tracking-wider text-bark">Response</dt>
-          <dd className="mt-1 font-display text-xl tabular-nums text-ink">{agent.responseRate}</dd>
+          <dd className="mt-1 text-xl font-semibold tabular-nums text-ink">{agent.responseRate}</dd>
         </div>
         <div>
           <dt className="font-mono text-xs uppercase tracking-wider text-bark">Member since</dt>
-          <dd className="mt-1 font-display text-xl text-ink">{agent.memberSince}</dd>
+          <dd className="mt-1 text-xl font-semibold text-ink">{agent.memberSince}</dd>
         </div>
       </dl>
 

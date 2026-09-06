@@ -1,0 +1,23 @@
+# Pinned to what the architecture doc specifies (realestate-saas-phase1-architecture.md
+# section 2). arq (Redis-backed jobs), boto3 (S3), and the Paystack/Flutterwave/KYC
+# provider SDKs are deliberately not installed yet: nothing in this scaffold calls them,
+# and pulling them in before there is a provider abstraction to call them from would be
+# dead weight. See app/core/config.py for what is actually wired up in this pass.
+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+email-validator==2.2.0
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+argon2-cffi==23.1.0
+pyjwt==2.10.1
+structlog==24.4.0
+python-dotenv==1.0.1
+httpx==0.28.1
+
+# Test tooling
+pytest==8.3.4
+pytest-asyncio==0.25.0

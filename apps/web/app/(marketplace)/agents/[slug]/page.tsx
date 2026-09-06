@@ -28,7 +28,7 @@ export default function AgentProfilePage({ params }: { params: { slug: string } 
         <div className="mx-auto max-w-4xl">
           {properties.length > 0 && (
             <div>
-              <h2 className="font-display text-2xl text-ink">Property listings ({properties.length})</h2>
+              <h2 className="text-2xl font-semibold text-ink">Property listings ({properties.length})</h2>
               <div className="mt-8">
                 <PropertyGrid properties={properties} emptyMessage="No active property listings right now." />
               </div>
@@ -37,7 +37,7 @@ export default function AgentProfilePage({ params }: { params: { slug: string } 
 
           {vehicles.length > 0 && (
             <div className={properties.length > 0 ? "mt-14" : undefined}>
-              <h2 className="font-display text-2xl text-ink">Vehicle listings ({vehicles.length})</h2>
+              <h2 className="text-2xl font-semibold text-ink">Vehicle listings ({vehicles.length})</h2>
               <div className="mt-8">
                 <VehicleGrid vehicles={vehicles} emptyMessage="No active vehicle listings right now." />
               </div>
