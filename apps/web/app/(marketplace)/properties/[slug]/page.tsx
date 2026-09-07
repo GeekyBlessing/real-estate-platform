@@ -9,7 +9,10 @@ import { VerificationSection } from "@/components/marketplace/VerificationSectio
 import { LocationPreview } from "@/components/marketplace/LocationPreview";
 import { DiscoveryRail } from "@/components/marketplace/DiscoveryRail";
 import { FeatureChips } from "@/components/marketplace/FeatureChips";
+import { SpecChips } from "@/components/marketplace/SpecChips";
 import { ReadMoreText } from "@/components/ui/ReadMoreText";
+import { RentalLifecycleTracker } from "@/components/property/RentalLifecycleTracker";
+import { ResidentInsightsSection } from "@/components/property/ResidentInsightsSection";
 import { AgentCard } from "@/components/agent/AgentCard";
 import { formatNaira } from "@/lib/utils";
 
@@ -49,19 +52,15 @@ export default function PropertyDetailPage({ params }: { params: { slug: string 
               <h1 className="mt-1 text-h1 font-semibold text-ink">{property.title}</h1>
               <p className="mt-1 text-body text-ink-soft">{property.location.label}</p>
 
-              <div className="mt-4 flex flex-wrap gap-2 text-body-sm">
-                <span className="rounded-full border border-line-strong bg-parchment px-3 py-1.5 font-semibold text-ink">
-                  {property.bedrooms ?? "N/A"} beds
-                </span>
-                <span className="rounded-full border border-line-strong bg-parchment px-3 py-1.5 font-semibold text-ink">
-                  {property.bathrooms} baths
-                </span>
-                <span className="rounded-full border border-line-strong bg-parchment px-3 py-1.5 font-semibold text-ink">
-                  {property.sizeSqm} sqm
-                </span>
-                <span className="rounded-full border border-line-strong bg-parchment px-3 py-1.5 font-semibold text-ink-soft">
-                  {property.furnishingStatus}
-                </span>
+              <div className="mt-4">
+                <SpecChips
+                  items={[
+                    `${property.bedrooms ?? "N/A"} beds`,
+                    `${property.bathrooms} baths`,
+                    `${property.sizeSqm} sqm`,
+                    property.furnishingStatus,
+                  ]}
+                />
               </div>
 
               <div className="mt-5 hidden lg:block">
@@ -92,11 +91,13 @@ export default function PropertyDetailPage({ params }: { params: { slug: string 
               <div className="mt-3">{agent && <AgentCard agent={agent} />}</div>
             </section>
 
+            {property.listingType === "rent" && <RentalLifecycleTracker listingSlug={property.slug} />}
+
             <section>
               <h2 className="text-h3 font-semibold text-ink">Resident insights</h2>
-              <p className="mt-2 rounded border border-line bg-paper-deep px-4 py-3 text-body-sm text-ink-soft">
-                Not enough resident feedback yet.
-              </p>
+              <div className="mt-3">
+                <ResidentInsightsSection listingSlug={property.slug} isRental={property.listingType === "rent"} />
+              </div>
             </section>
 
             <div className="border-t border-line pt-5">

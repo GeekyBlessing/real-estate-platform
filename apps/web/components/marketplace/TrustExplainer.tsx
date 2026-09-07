@@ -16,36 +16,40 @@ const STEPS = [
 ];
 
 /**
- * Shows the verification component doing its actual job rather than
- * describing it in marketing copy, per the blueprint's homepage
- * structure. The badge below is interactive, the same component used
- * on a real property detail page.
+ * A compact card, not a scrolled-past marketing section: the earlier
+ * version used website-landing-page conventions (uppercase eyebrow,
+ * a 2xl headline, sm:grid-cols-3, py-16 section padding) that read as
+ * a "how it works" block bolted onto the end of an app feed. This
+ * keeps the same substance (verification is a real, interactive
+ * component, not marketing copy) at the density the rest of the feed
+ * uses, and drops the "try it" framing that spoke to a reviewer
+ * rather than a user.
  */
 export function TrustExplainer() {
   return (
-    <section className="border-b border-line px-6 py-16">
-      <div className="mx-auto max-w-5xl">
-        <p className="font-mono text-xs uppercase tracking-wider text-bark">How verification works</p>
-        <h2 className="mt-2 text-2xl font-semibold text-ink">A badge that means something specific.</h2>
+    <section className="px-6 py-3">
+      <div className="mx-auto w-full max-w-5xl rounded border border-line bg-parchment p-4">
+        <h2 className="text-h3 font-semibold text-ink">How verification works</h2>
 
-        <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
+        <ol className="mt-3 flex flex-col gap-3">
           {STEPS.map((step, index) => (
-            <div key={step.title}>
-              <p className="font-mono text-xs text-patina">{String(index + 1).padStart(2, "0")}</p>
-              <p className="mt-2 text-sm font-semibold text-ink">{step.title}</p>
-              <p className="mt-1.5 text-sm text-ink-soft">{step.body}</p>
-            </div>
+            <li key={step.title} className="flex gap-3">
+              <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-patina font-mono text-[10px] font-bold text-white">
+                {index + 1}
+              </span>
+              <div>
+                <p className="text-body-sm font-semibold text-ink">{step.title}</p>
+                <p className="mt-0.5 text-body-sm text-ink-soft">{step.body}</p>
+              </div>
+            </li>
           ))}
-        </div>
+        </ol>
 
-        <div className="mt-10 rounded border border-line bg-parchment p-6">
-          <p className="text-xs font-semibold text-ink">Try it. This is the real component.</p>
-          <div className="mt-3">
-            <VerificationDisclosure
-              state="verified"
-              detail="Ownership document and listing details reviewed by an administrator on 14 August."
-            />
-          </div>
+        <div className="mt-3 border-t border-line pt-3">
+          <VerificationDisclosure
+            state="verified"
+            detail="Ownership document and listing details reviewed by an administrator on 14 August."
+          />
         </div>
       </div>
     </section>

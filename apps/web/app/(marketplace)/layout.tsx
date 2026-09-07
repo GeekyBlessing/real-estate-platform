@@ -7,6 +7,7 @@ import { BottomNav } from "@/components/navigation/BottomNav";
 import { ToastProvider } from "@/components/ui/Toast";
 import { LocationProvider } from "@/lib/location-context";
 import { FavoritesProvider } from "@/lib/favorites-context";
+import { RentalLifecycleProvider } from "@/lib/rental-lifecycle-context";
 import { APP_NAME } from "@/lib/brand";
 
 /**
@@ -17,7 +18,7 @@ import { APP_NAME } from "@/lib/brand";
  * a minimal brand line instead, the same idea (auth)/layout.tsx already
  * uses for sign in and register.
  */
-const FULL_SCREEN_ROUTES = ["/become-an-agent", "/list-a-property", "/sell-a-car"];
+const FULL_SCREEN_ROUTES = ["/become-an-agent", "/list-a-property", "/sell-a-car", "/feedback"];
 
 /**
  * The mobile-first app shell: a slim Navbar (full links from md up,
@@ -34,10 +35,11 @@ const FULL_SCREEN_ROUTES = ["/become-an-agent", "/list-a-property", "/sell-a-car
  * closing content (a disclaimer line, a report link) where it's
  * actually relevant instead.
  *
- * LocationProvider and FavoritesProvider mount once here so every
- * marketplace route shares the same selected city and the same
- * saved listings, rather than each page or grid keeping its own
- * disconnected copy of that state.
+ * LocationProvider, FavoritesProvider, and RentalLifecycleProvider
+ * mount once here so every marketplace route shares the same
+ * selected city, the same saved listings, and the same per-browser
+ * rental-lifecycle state, rather than each page keeping its own
+ * disconnected copy.
  */
 export default function MarketplaceLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -46,19 +48,21 @@ export default function MarketplaceLayout({ children }: { children: React.ReactN
   return (
     <LocationProvider>
       <FavoritesProvider>
-        <ToastProvider>
-          {isFullScreen ? (
-            <div className="px-5 py-4 sm:px-6">
-              <Link href="/" className="font-display text-base font-bold text-ink">
-                {APP_NAME}
-              </Link>
-            </div>
-          ) : (
-            <Navbar />
-          )}
-          <div className={isFullScreen ? undefined : "pb-24 md:pb-0"}>{children}</div>
-          {!isFullScreen && <BottomNav />}
-        </ToastProvider>
+        <RentalLifecycleProvider>
+          <ToastProvider>
+            {isFullScreen ? (
+              <div className="px-5 py-4 sm:px-6">
+                <Link href="/" className="font-display text-base font-bold text-ink">
+                  {APP_NAME}
+                </Link>
+              </div>
+            ) : (
+              <Navbar />
+            )}
+            <div className={isFullScreen ? undefined : "pb-24 md:pb-0"}>{children}</div>
+            {!isFullScreen && <BottomNav />}
+          </ToastProvider>
+        </RentalLifecycleProvider>
       </FavoritesProvider>
     </LocationProvider>
   );

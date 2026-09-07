@@ -4,24 +4,28 @@ import Link from "next/link";
 import { Greeting } from "@/components/marketplace/Greeting";
 import { LocationPicker } from "@/components/marketplace/LocationPicker";
 import { useAuth } from "@/lib/auth-context";
+import { Avatar } from "@/components/ui/Avatar";
 import { BellIcon, ProfileIcon as ProfileGlyph, SearchIcon } from "@/components/ui/icons";
 
-/** Initials on a solid circle when signed in, matching the avatar treatment PropertyCard and VehicleCard already use for a seller; a plain profile glyph when signed out, since there is no name yet to abbreviate. */
+/** The shared Avatar when signed in, matching the treatment PropertyCard, VehicleCard, and AgentCard use for a person; a plain profile glyph when signed out, since there is no name yet to abbreviate. */
 function AvatarButton() {
   const { isAuthenticated, user } = useAuth();
-  const initials = user?.fullName
-    ?.split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2);
+
+  if (isAuthenticated && user?.fullName) {
+    return (
+      <Link href="/dashboard" aria-label="Your account">
+        <Avatar name={user.fullName} size="sm" />
+      </Link>
+    );
+  }
 
   return (
     <Link
-      href={isAuthenticated ? "/dashboard" : "/login"}
-      aria-label={isAuthenticated ? "Your account" : "Sign in"}
-      className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-patina font-mono text-xs font-bold text-white"
+      href="/login"
+      aria-label="Sign in"
+      className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-patina text-white"
     >
-      {isAuthenticated && initials ? initials : <ProfileGlyph size={17} />}
+      <ProfileGlyph size={17} />
     </Link>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SignInRequiredPage } from "@/components/marketplace/SignInRequiredPage";
 import { useAuth } from "@/lib/auth-context";
+import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/utils";
 import {
   ChevronRightIcon,
@@ -101,8 +102,6 @@ export default function DashboardPage() {
     );
   }
 
-  const initials = user.fullName.split(" ").map((part) => part[0]).join("").slice(0, 2);
-
   async function handleSignOut() {
     await logout();
     router.push("/");
@@ -114,9 +113,7 @@ export default function DashboardPage() {
         <h1 className="text-h1 font-semibold text-ink">Profile</h1>
 
         <div className="mt-5 flex items-center gap-4">
-          <span className="flex h-16 w-16 flex-none items-center justify-center rounded-full bg-patina text-xl font-bold text-white">
-            {initials}
-          </span>
+          <Avatar name={user.fullName} size="lg" />
           <div className="min-w-0">
             <p className="truncate text-h3 font-semibold text-ink">{user.fullName}</p>
             <p className="text-body-sm text-ink-soft">{user.roles.join(", ") || "Member"}</p>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { SignInRequiredPage } from "@/components/marketplace/SignInRequiredPage";
 import { ListingMedia } from "@/components/ui/ListingMedia";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useAuth } from "@/lib/auth-context";
 import { mockActivity, ActivityKind } from "@/lib/mock-activity";
 import { getPropertyBySlug } from "@/lib/mock-data";
@@ -37,16 +38,14 @@ const KIND_TONE: Record<ActivityKind, string> = {
 };
 
 /**
- * A real marketplace timeline, not a generic "no notifications yet"
- * empty state: an icon per kind of event, a timestamp, and a listing
- * thumbnail pulled through the same ListingMedia every card and
- * gallery uses. The entries themselves are illustrative content (see
- * lib/mock-activity.ts) since real enquiries, replies, and inspection
- * status depend on messaging and inspection backends that are not
- * built yet, the same "mock the UI, not the feature" approach the
- * rest of this build uses; still gated behind a real signed-in
- * session, same as Dashboard and Messages, so a signed-out visitor
- * never sees a timeline that looks like it's theirs.
+ * The layout is real (an icon per kind of event, a timestamp, and a
+ * listing thumbnail pulled through the same ListingMedia every card
+ * and gallery uses) but the feed itself is empty for now: real
+ * enquiries, replies, and inspection status depend on messaging and
+ * inspection backends that are not built yet, and this screen does
+ * not fabricate them to fill the space. Still gated behind a real
+ * signed-in session, same as Dashboard and Messages, so a signed-out
+ * visitor never sees a timeline framed as theirs.
  */
 export default function ActivityPage() {
   const { isAuthenticated, isRestoringSession } = useAuth();
@@ -69,6 +68,12 @@ export default function ActivityPage() {
         <h1 className="text-h1 font-semibold text-ink">Activity</h1>
 
         <div className="mt-6 flex flex-col">
+          {mockActivity.length === 0 && (
+            <EmptyState
+              title="No activity yet"
+              description="Inspection updates, replies from agents and sellers, price changes on things you've saved, and new matches will show up here."
+            />
+          )}
           {mockActivity.map((item) => {
             const Icon = KIND_ICON[item.kind];
             const listing =

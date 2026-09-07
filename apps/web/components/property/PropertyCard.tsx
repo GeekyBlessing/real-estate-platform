@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { VerificationBadge } from "@/components/ui/Badge";
 import { ListingMedia } from "@/components/ui/ListingMedia";
+import { Avatar } from "@/components/ui/Avatar";
 import { formatNaira } from "@/lib/utils";
 import { ListingBase, PropertyType, sellerRoleLabel } from "@/lib/listings";
 import { useFavorites } from "@/lib/favorites-context";
@@ -87,13 +88,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
         </div>
 
         <div className="flex items-center gap-2 text-body-sm text-ink-soft">
-          <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-patina font-mono text-[10px] font-bold text-white">
-            {property.listedBy.name
-              .split(" ")
-              .map((part) => part[0])
-              .join("")
-              .slice(0, 2)}
-          </span>
+          <Avatar name={property.listedBy.name} size="xs" />
           <span className="truncate">
             {property.listedBy.name} <span className="text-clay">·</span> {sellerRoleLabel(property.listedBy.role)}
           </span>

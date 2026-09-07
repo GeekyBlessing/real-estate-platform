@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { useSelectedLocation } from "@/lib/location-context";
+import { stateLabelFor } from "@/lib/locations";
 import { cn } from "@/lib/utils";
 import { MapPinIcon as PinIcon, CheckIcon, ChevronDownIcon } from "@/components/ui/icons";
 
@@ -52,9 +53,7 @@ export function LocationPicker({ className }: { className?: string }) {
               >
                 <span>
                   <span className="block text-h3 font-semibold text-ink">{option.city}</span>
-                  <span className="block text-caption text-ink-soft">
-                    {option.stateSlug === "ogun" ? "Ogun State" : "Lagos State"}
-                  </span>
+                  <span className="block text-caption text-ink-soft">{stateLabelFor(option.stateSlug)}</span>
                 </span>
                 {active && <CheckIcon size={16} active />}
               </button>

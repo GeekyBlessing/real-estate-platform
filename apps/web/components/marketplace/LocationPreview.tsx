@@ -11,11 +11,16 @@ export interface LocationPreviewProps {
  * instruction not to expose exact residential location unnecessarily;
  * the real address is something a seller shares once an inspection is
  * actually confirmed.
+ *
+ * areaLabel is used in the section heading only, not repeated in a
+ * paragraph below the graphic: the detail page already states it once,
+ * right under the title, and printing it again here duplicated the
+ * exact same string on one screen.
  */
 export function LocationPreview({ areaLabel }: LocationPreviewProps) {
   return (
     <section>
-      <h2 className="text-h3 font-semibold text-ink">Location</h2>
+      <h2 className="text-h3 font-semibold text-ink">Location in {areaLabel}</h2>
       <div className="relative mt-3 aspect-[16/9] overflow-hidden rounded border border-line bg-paper-deep">
         <svg viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice" className="h-full w-full">
           <rect width="400" height="225" fill="#EFE6D3" />
@@ -32,8 +37,7 @@ export function LocationPreview({ areaLabel }: LocationPreviewProps) {
           Preview, not an interactive map
         </span>
       </div>
-      <p className="mt-2 text-body-sm text-ink-soft">{areaLabel}</p>
-      <p className="mt-1 text-caption text-ink-soft">The exact address is shared directly once an inspection is confirmed.</p>
+      <p className="mt-2 text-caption text-ink-soft">The exact address is shared directly once an inspection is confirmed.</p>
     </section>
   );
 }

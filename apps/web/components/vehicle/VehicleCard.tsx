@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { VerificationBadge } from "@/components/ui/Badge";
 import { ListingMedia } from "@/components/ui/ListingMedia";
+import { Avatar } from "@/components/ui/Avatar";
 import { formatNaira, formatMileage } from "@/lib/utils";
 import { VehicleCardData, sellerRoleLabel } from "@/lib/listings";
 import { useFavorites } from "@/lib/favorites-context";
@@ -72,13 +73,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
         </div>
 
         <div className="flex items-center gap-2 text-body-sm text-ink-soft">
-          <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-patina font-mono text-[10px] font-bold text-white">
-            {vehicle.listedBy.name
-              .split(" ")
-              .map((part) => part[0])
-              .join("")
-              .slice(0, 2)}
-          </span>
+          <Avatar name={vehicle.listedBy.name} size="xs" />
           <span className="truncate">
             {vehicle.listedBy.name} <span className="text-clay">·</span> {sellerRoleLabel(vehicle.listedBy.role)}
           </span>

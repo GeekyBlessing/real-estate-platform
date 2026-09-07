@@ -240,6 +240,22 @@ export function isLaunchCity(citySlug: string): boolean {
 }
 
 /**
+ * The same state-label rule makeLocation() uses (state name alone for
+ * a recognizable state, "X State" otherwise), exposed separately for
+ * UI that shows a state name without building a full Location, such
+ * as the city switcher. Reading STATES here instead of hardcoding a
+ * per-state ternary at the call site is what keeps a place like
+ * LocationPicker from silently drifting out of sync with this rule
+ * if a third launch city is ever added from a state with different
+ * includeInLabel handling.
+ */
+export function stateLabelFor(stateSlug: string): string {
+  const state = STATES.find((item) => item.slug === stateSlug);
+  if (!state) return "";
+  return state.includeInLabel ? `${state.name} State` : state.name;
+}
+
+/**
  * True when a free text query matches a location's area, city, or
  * state name. Backs the search page's location filtering until a
  * real backend query replaces client side filtering of the full

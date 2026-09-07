@@ -10,30 +10,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { cn } from "@/lib/utils";
 
 /**
- * A saved listing's status can change after the fact: the price drops,
- * it goes off market, or it finishes verification after being saved
- * unverified. There is no real price-history or listing-lifecycle
- * backend behind this yet, so this is an illustrative, deterministic
- * stand-in (derived from the slug, not stored anywhere) purely to show
- * the intended UI treatment, the same "mock the UI, not the feature"
- * approach used elsewhere in this build until that lifecycle data is
- * real.
- */
-function savedStatusFor(slug: string, verified: boolean): { label: string; tone: "price" | "gone" | "verified" } | null {
-  const hash = Array.from(slug).reduce((total, char) => total + char.charCodeAt(0), 0);
-  if (hash % 5 === 0) return { label: "Price dropped ₦2,000,000", tone: "price" };
-  if (hash % 7 === 0) return { label: "No longer available", tone: "gone" };
-  if (hash % 6 === 0 && verified) return { label: "Now verified", tone: "verified" };
-  return null;
-}
-
-const STATUS_STYLES: Record<string, string> = {
-  price: "bg-verified-bg text-verified",
-  gone: "bg-danger-bg text-danger",
-  verified: "bg-verified-bg text-verified",
-};
-
-/**
  * Properties and cars behind a real tab switch, not two long sections
  * stacked on one scroll, so "Saved" reads as one screen with a
  * category choice the way the rest of the app makes that choice
@@ -91,19 +67,13 @@ export default function SavedPage() {
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {items.map((item) => {
-                const status = savedStatusFor(item.slug, item.verificationState === "verified");
-                return (
-                  <div key={item.slug} className="relative">
-                    {tab === "property" ? <PropertyCard property={item as (typeof savedProperties)[number]} /> : <VehicleCard vehicle={item as (typeof savedVehicles)[number]} />}
-                    {status && (
-                      <span className={cn("mt-2 block rounded-sm px-2.5 py-1 text-center text-caption font-semibold", STATUS_STYLES[status.tone])}>
-                        {status.label}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+              {items.map((item) =>
+                tab === "property" ? (
+                  <PropertyCard key={item.slug} property={item as (typeof savedProperties)[number]} />
+                ) : (
+                  <VehicleCard key={item.slug} vehicle={item as (typeof savedVehicles)[number]} />
+                )
+              )}
             </div>
           )}
         </div>

@@ -46,7 +46,17 @@ export default function VehicleDetailPage({ params }: { params: { slug: string }
 
               <div className="mt-4">
                 <SpecChips
-                  items={[formatMileage(vehicle.mileageKm), vehicle.transmission === "automatic" ? "Automatic" : "Manual", vehicle.fuelType, vehicle.bodyType]}
+                  items={[
+                    vehicle.condition === "brand new"
+                      ? "Brand new"
+                      : vehicle.condition === "foreign used"
+                        ? "Foreign used"
+                        : "Nigerian used",
+                    formatMileage(vehicle.mileageKm),
+                    vehicle.transmission === "automatic" ? "Automatic" : "Manual",
+                    vehicle.fuelType,
+                    vehicle.bodyType,
+                  ]}
                 />
               </div>
 
@@ -60,27 +70,6 @@ export default function VehicleDetailPage({ params }: { params: { slug: string }
               <div className="mt-2">
                 <ReadMoreText text={vehicle.description} />
               </div>
-            </section>
-
-            <section>
-              <h2 className="text-h3 font-semibold text-ink">Vehicle details</h2>
-              <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-4">
-                {[
-                  ["Make", vehicle.make],
-                  ["Model", vehicle.model],
-                  ["Year", String(vehicle.year)],
-                  ["Condition", vehicle.condition === "brand new" ? "Brand new" : vehicle.condition === "foreign used" ? "Foreign used" : "Nigerian used"],
-                  ["Transmission", vehicle.transmission === "automatic" ? "Automatic" : "Manual"],
-                  ["Fuel", vehicle.fuelType],
-                  ["Mileage", formatMileage(vehicle.mileageKm)],
-                  ["Body", vehicle.bodyType],
-                ].map(([label, value]) => (
-                  <div key={label} className="border-b border-line pb-3">
-                    <dt className="text-caption text-ink-soft">{label}</dt>
-                    <dd className="mt-0.5 text-body font-semibold text-ink">{value}</dd>
-                  </div>
-                ))}
-              </dl>
             </section>
 
             <section>

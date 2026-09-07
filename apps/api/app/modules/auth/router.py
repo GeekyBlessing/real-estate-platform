@@ -23,7 +23,19 @@ def _set_refresh_cookie(response: Response, plaintext: str) -> None:
         # Local development is plain HTTP; Secure cookies require HTTPS, so
         # this only turns on outside development. Every real deployment
         # must run behind TLS, at which point is_production flips this on.
-        samesite="strict",
+        #
+        # SameSite must follow the same split, not stay hardcoded to
+        # "strict": in development the web app and API are different
+        # ports on localhost, which browsers still treat as same-site, so
+        # Strict works there. Once deployed, the frontend and API live on
+        # two different real domains (a Vercel domain and a Render
+        # domain), which is genuinely cross-site: Strict (and even Lax,
+        # for a plain fetch rather than a top-level navigation) makes the
+        # browser withhold this cookie entirely, so refresh/logout would
+        # silently fail. "None" is required for a cross-site cookie to be
+        # sent at all, and it's only valid paired with Secure, which is
+        # exactly the is_production flag right above.
+        samesite="none" if settings.is_production else "strict",
         max_age=settings.refresh_token_days * 24 * 60 * 60,
         path="/auth",
     )

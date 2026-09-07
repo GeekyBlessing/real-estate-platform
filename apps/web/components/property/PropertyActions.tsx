@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { InspectionRequestModal } from "./InspectionRequestModal";
 import { useToast } from "@/components/ui/Toast";
+import { useRentalLifecycle } from "@/lib/rental-lifecycle-context";
 
 export interface PropertyActionsProps {
   propertyTitle: string;
@@ -27,8 +28,9 @@ export interface PropertyActionsProps {
  * BottomNav is hidden, so this reverts to sitting flush at the
  * bottom for the md-to-lg range where it's still the sticky variant.
  */
-export function PropertyActions({ propertyTitle, propertySlug: _propertySlug, layout = "inline" }: PropertyActionsProps) {
+export function PropertyActions({ propertyTitle, propertySlug, layout = "inline" }: PropertyActionsProps) {
   const { showToast } = useToast();
+  const { recordStage } = useRentalLifecycle();
   const [inspectionOpen, setInspectionOpen] = useState(false);
 
   const wrapperClass =
@@ -46,7 +48,12 @@ export function PropertyActions({ propertyTitle, propertySlug: _propertySlug, la
           Request inspection
         </Button>
       </div>
-      <InspectionRequestModal isOpen={inspectionOpen} onClose={() => setInspectionOpen(false)} assetTitle={propertyTitle} />
+      <InspectionRequestModal
+        isOpen={inspectionOpen}
+        onClose={() => setInspectionOpen(false)}
+        assetTitle={propertyTitle}
+        onSubmitted={() => recordStage(propertySlug, "inspection_requested")}
+      />
     </>
   );
 }

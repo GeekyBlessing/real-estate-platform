@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { VerificationBadge } from "@/components/ui/Badge";
+import { Avatar } from "@/components/ui/Avatar";
 import { Agent } from "@/lib/mock-data";
 
 export interface AgentCardProps {
@@ -15,14 +16,10 @@ export interface AgentCardProps {
  * line without a separate field.
  */
 export function AgentCard({ agent }: AgentCardProps) {
-  const initials = agent.name.split(" ").map((part) => part[0]).join("").slice(0, 2);
-
   return (
     <div className="rounded border border-line bg-parchment p-5">
       <div className="flex items-center gap-4">
-        <span className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-patina text-lg font-bold text-white">
-          {initials}
-        </span>
+        <Avatar name={agent.name} size="lg" />
         <div className="min-w-0">
           <Link href={`/agents/${agent.slug}`} className="block truncate text-h3 font-semibold text-ink hover:underline">
             {agent.name}

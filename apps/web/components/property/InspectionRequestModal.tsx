@@ -11,6 +11,8 @@ export interface InspectionRequestModalProps {
   onClose: () => void;
   /** The property or vehicle this request is for, shown in the confirmation copy below. */
   assetTitle: string;
+  /** Called once the (simulated) request actually succeeds, never on cancel, so a caller can record real state (see PropertyActions / lib/rental-lifecycle-context.tsx) rather than guessing from onClose alone. */
+  onSubmitted?: () => void;
 }
 
 /**
@@ -19,7 +21,7 @@ export interface InspectionRequestModalProps {
  * inspection works the same way regardless of what is being
  * inspected. Only the asset being inspected differs.
  */
-export function InspectionRequestModal({ isOpen, onClose, assetTitle }: InspectionRequestModalProps) {
+export function InspectionRequestModal({ isOpen, onClose, assetTitle, onSubmitted }: InspectionRequestModalProps) {
   const { showToast } = useToast();
   const [preferredDate, setPreferredDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -39,6 +41,7 @@ export function InspectionRequestModal({ isOpen, onClose, assetTitle }: Inspecti
     setTimeout(() => {
       setSubmitting(false);
       onClose();
+      onSubmitted?.();
       showToast("Inspection request sent. The seller has one business day to confirm.", "success");
     }, 600);
   }

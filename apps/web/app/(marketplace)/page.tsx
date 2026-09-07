@@ -18,15 +18,20 @@ import { vehicles } from "@/lib/vehicles";
  * tiles answer "what can I find," and the rails below answer "what's
  * near me," scoped to whichever launch city is selected.
  *
- * Four rails, not five: an earlier version also had a "Popular in
+ * Three rails, not five: an earlier version also had a "Popular in
  * {city}" rail that was just nearYou reversed, the same listings
  * relabeled as if they were independently ranked. With no real view
  * or enquiry counts yet, there is no honest signal behind "popular,"
- * so that rail is gone rather than kept under a misleading label.
- * "Newest listings" stays because it does not pretend to be anything
- * other than what it is: this seed list's own order, last in first
- * shown, standing in for a real createdAt until listings come from
- * the backend.
+ * so that rail is gone rather than kept under a misleading label. A
+ * "Verified in {city}" rail was removed for the identical reason: it
+ * was always a strict subset of nearYou, so a verified listing simply
+ * appeared twice on the same screen. Verification status is already
+ * visible per card (see PropertyCard's VerificationBadge), so the
+ * separate rail added a second copy of the listing, not new
+ * information. "Newest listings" stays because it does not pretend to
+ * be anything other than what it is: this seed list's own order, last
+ * in first shown, standing in for a real createdAt until listings
+ * come from the backend.
  */
 export default function HomePage() {
   const { city } = useSelectedLocation();
@@ -40,10 +45,6 @@ export default function HomePage() {
     [city]
   );
   const newestListings = useMemo(() => [...properties].slice(-4).reverse(), []);
-  const verifiedNearYou = useMemo(
-    () => nearYou.filter((property) => property.verificationState === "verified"),
-    [nearYou]
-  );
 
   return (
     <main>
@@ -86,16 +87,6 @@ export default function HomePage() {
             items={carsInCity}
             keyFor={(vehicle) => vehicle.slug}
             renderItem={(vehicle) => <VehicleCard vehicle={vehicle} />}
-          />
-        </div>
-
-        <div className="mx-auto w-full max-w-5xl">
-          <DiscoveryRail
-            title={`Verified in ${city.city}`}
-            seeAllHref={`/search?location=${encodeURIComponent(city.city)}`}
-            items={verifiedNearYou}
-            keyFor={(property) => property.slug}
-            renderItem={(property) => <PropertyCard property={property} />}
           />
         </div>
 
