@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { VerificationBadge } from "@/components/ui/Badge";
+import { MediaUploader } from "@/components/ui/MediaUploader";
 import { StepShell, ChipToggle, DocumentSlot, ReviewRow, StepHeader, StepFooter, StepDef } from "@/components/ui/StepFlow";
 import { AMENITIES, FURNISHING_OPTIONS, PROPERTY_TYPES, PropertyType, propertyTypeLabel } from "@/lib/listings";
 import { STATES, LAUNCH_CITIES, isLaunchCity } from "@/lib/locations";
@@ -46,7 +47,6 @@ interface PropertyListingForm {
   streetAddress: string;
   amenities: string[];
   price: string;
-  photoNames: (string | null)[];
   description: string;
   ownershipDocumentName: string | null;
 }
@@ -64,7 +64,6 @@ const EMPTY_FORM: PropertyListingForm = {
   streetAddress: "",
   amenities: [],
   price: "",
-  photoNames: [null, null, null],
   description: "",
   ownershipDocumentName: null,
 };
@@ -86,6 +85,7 @@ export function PropertyListingFlow({ user }: { user: AuthUser }) {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
   const [form, setForm] = useState<PropertyListingForm>(EMPTY_FORM);
+  const [photoCount, setPhotoCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -105,16 +105,6 @@ export function PropertyListingFlow({ user }: { user: AuthUser }) {
     }));
   }
 
-  function setPhoto(index: number, name: string | null) {
-    setForm((prev) => {
-      const next = [...prev.photoNames];
-      next[index] = name;
-      return { ...prev, photoNames: next };
-    });
-  }
-
-  const filledPhotoCount = form.photoNames.filter(Boolean).length;
-
   const canContinue = useMemo(() => {
     switch (step.key) {
       case "transaction":
@@ -129,7 +119,7 @@ export function PropertyListingFlow({ user }: { user: AuthUser }) {
       case "price":
         return Boolean(form.price && Number(form.price) > 0);
       case "photos":
-        return filledPhotoCount >= 3;
+        return photoCount >= 3;
       case "description":
         return form.description.trim().length >= 20;
       case "documents":
@@ -139,7 +129,7 @@ export function PropertyListingFlow({ user }: { user: AuthUser }) {
       default:
         return false;
     }
-  }, [step.key, form, filledPhotoCount]);
+  }, [step.key, form, photoCount]);
 
   function goBack() {
     if (stepIndex === 0) {
@@ -319,27 +309,8 @@ export function PropertyListingFlow({ user }: { user: AuthUser }) {
         )}
 
         {step.key === "photos" && (
-          <StepShell title="Photos" description="Add at least 3 real photos. Listings with more photos get more attention.">
-            <div className="flex flex-col gap-4">
-              {form.photoNames.map((name, index) => (
-                <DocumentSlot
-                  key={index}
-                  label={`Photo ${index + 1}`}
-                  hint={index < 3 ? "Required." : "Optional."}
-                  fileName={name}
-                  onChange={(value) => setPhoto(index, value)}
-                />
-              ))}
-              {form.photoNames.length < 8 && (
-                <button
-                  type="button"
-                  onClick={() => setForm((prev) => ({ ...prev, photoNames: [...prev.photoNames, null] }))}
-                  className="rounded-sm border border-dashed border-line-strong py-3 text-body-sm font-semibold text-ink-soft transition-colors hover:border-ink hover:text-ink"
-                >
-                  Add another photo
-                </button>
-              )}
-            </div>
+          <StepShell title="Photos" description="Add at least 3 real photos of this property. Listings with more photos get more attention.">
+            <MediaUploader minRequired={3} maxPhotos={12} onChange={(items) => setPhotoCount(items.length)} />
           </StepShell>
         )}
 
@@ -386,7 +357,7 @@ export function PropertyListingFlow({ user }: { user: AuthUser }) {
               <ReviewRow label="Area" value={areaOptions.find((area) => area.slug === form.areaSlug)?.name} />
               <ReviewRow label="Amenities" value={form.amenities.join(", ")} />
               <ReviewRow label="Price" value={form.price ? `₦${Number(form.price).toLocaleString("en-NG")}` : undefined} />
-              <ReviewRow label="Photos" value={`${filledPhotoCount} attached`} />
+              <ReviewRow label="Photos" value={`${photoCount} uploaded`} />
               <ReviewRow label="Ownership document" value={form.ownershipDocumentName ?? undefined} />
             </div>
             <p className="text-caption text-ink-soft">

@@ -49,17 +49,22 @@ export function VehicleGallery({ title, slug, images }: VehicleGalleryProps) {
         onScroll={handleScroll}
         className="flex aspect-[4/3] snap-x snap-mandatory overflow-x-auto sm:aspect-[16/9] sm:rounded"
       >
-        {images.map((image, index) => (
-          <div key={index} className="relative h-full w-full flex-none snap-start">
-            <ListingMedia
-              image={image}
-              category="vehicle"
-              fallbackAlt={index === 0 ? title : `${title}, photo ${index + 1}`}
-              priority={index === 0}
-              className="h-full w-full"
-            />
+        {imageCount === 0 ? (
+          <div className="relative h-full w-full flex-none">
+            <ListingMedia image={undefined} fallbackAlt={title} className="h-full w-full" />
           </div>
-        ))}
+        ) : (
+          images.map((image, index) => (
+            <div key={index} className="relative h-full w-full flex-none snap-start">
+              <ListingMedia
+                image={image}
+                fallbackAlt={index === 0 ? title : `${title}, photo ${index + 1}`}
+                priority={index === 0}
+                className="h-full w-full"
+              />
+            </div>
+          ))
+        )}
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between p-3 sm:p-4">

@@ -1,40 +1,38 @@
 import { ListingImage } from "@/components/ui/ListingImage";
-import { PropertyIllustration } from "@/components/property/PropertyIllustration";
-import { VehicleIllustration } from "@/components/vehicle/VehicleIllustration";
+import { MissingListingPhoto } from "@/components/ui/MissingListingPhoto";
 import { ListingImageRef } from "@/lib/listings";
 
 export interface ListingMediaProps {
-  image: ListingImageRef;
-  category: "property" | "vehicle";
+  image: ListingImageRef | undefined;
   /** Used when this particular image has no alt of its own. */
   fallbackAlt: string;
   className?: string;
   priority?: boolean;
+  /** Passed through to MissingListingPhoto for a card thumbnail vs. a full gallery pane. */
+  compact?: boolean;
 }
 
 /**
  * The one place a listing image is rendered, for both categories,
- * wherever a card, gallery, or category tile needs one. Every listing
- * in this build has images with no url yet (real uploads are later
- * backend work), so today this always renders the illustrated scene
- * directly rather than attempting a network request that would only
- * fail. The moment a ListingImageRef gets a real url, this same call
- * site starts trying to load it first, falling back to the same
- * illustration only if that photo fails, with no change needed in
- * PropertyCard, VehicleCard, or either gallery.
+ * wherever a card, gallery, or category tile needs one. image is
+ * undefined for a listing with no uploaded photos yet (see
+ * ListingImageRef's doc comment on why that's a real, expected state
+ * rather than something every call site works around); this renders
+ * MissingListingPhoto for that case instead of asking the caller to
+ * remember to check images.length itself.
  */
-export function ListingMedia({ image, category, fallbackAlt, className, priority }: ListingMediaProps) {
-  const alt = image.alt ?? fallbackAlt;
-  const illustration =
-    category === "property" ? (
-      <PropertyIllustration scene={image.scene} seed={image.seed} colorSeed={image.colorSeed} className={className} label={alt} />
-    ) : (
-      <VehicleIllustration scene={image.scene} seed={image.seed} colorSeed={image.colorSeed} className={className} label={alt} />
-    );
-
-  if (!image.url) {
-    return illustration;
+export function ListingMedia({ image, fallbackAlt, className, priority, compact }: ListingMediaProps) {
+  if (!image) {
+    return <MissingListingPhoto className={className} compact={compact} />;
   }
 
-  return <ListingImage src={image.url} alt={alt} className={className} priority={priority} fallback={illustration} />;
+  return (
+    <ListingImage
+      src={image.url}
+      alt={image.alt ?? fallbackAlt}
+      className={className}
+      priority={priority}
+      fallback={<MissingListingPhoto className={className} compact={compact} />}
+    />
+  );
 }

@@ -43,12 +43,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
   return (
     <article className="group overflow-hidden rounded border border-line bg-parchment transition-colors hover:border-line-strong">
       <div className="relative aspect-[4/3] w-full">
-        <ListingMedia
-          image={property.images[0]!}
-          category="property"
-          fallbackAlt={property.title}
-          className="h-full w-full"
-        />
+        <ListingMedia image={property.images[0]} fallbackAlt={property.title} className="h-full w-full" compact />
         <div className="pointer-events-none absolute inset-0 flex items-start justify-between p-3">
           <VerificationBadge state={property.verificationState} />
           {property.listingType === "sale" ? (
@@ -82,8 +77,12 @@ export function PropertyCard({ property }: PropertyCardProps) {
         </div>
 
         <div className="flex gap-4 border-t border-line pt-2.5 text-body-sm text-ink-soft">
-          <span><strong className="font-semibold text-ink">{property.bedrooms ?? "N/A"}</strong> beds</span>
-          <span><strong className="font-semibold text-ink">{property.bathrooms}</strong> baths</span>
+          {property.bedrooms !== null && (
+            <span><strong className="font-semibold text-ink">{property.bedrooms}</strong> beds</span>
+          )}
+          {property.propertyType !== "land" && (
+            <span><strong className="font-semibold text-ink">{property.bathrooms}</strong> baths</span>
+          )}
           <span><strong className="font-semibold text-ink">{property.sizeSqm}</strong> sqm</span>
         </div>
 

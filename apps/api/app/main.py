@@ -2,6 +2,7 @@ import structlog
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app import models_registry  # noqa: F401  (registers every module's tables; see that file's docstring)
 from app.common.exceptions import AppError
@@ -9,11 +10,13 @@ from app.core.config import get_settings
 
 logger = structlog.get_logger()
 from app.modules.auth.router import router as auth_router
+from app.modules.media.router import router as media_router
+from app.modules.media.storage import get_storage
 from app.modules.users.router import router as users_router
 
 settings = get_settings()
 
-app = FastAPI(title="Ile API", version="0.1.0")
+app = FastAPI(title="OWNIT API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,10 +68,18 @@ async def health() -> dict[str, str]:
 
 app.include_router(auth_router)
 app.include_router(users_router)
+app.include_router(media_router)
 
-# properties, media, search, verification, messaging, inspections,
-# reports, payments, notifications, and admin all have real ORM models
-# (see app/models_registry.py) but no router yet: per
+# Real uploaded files (see app/modules/media/storage.py's LocalDiskStorage):
+# served directly since this pass has no CDN in front of it. media_base_url
+# in config.py must stay in sync with this mount path.
+get_storage()  # Ensures media_root exists before StaticFiles tries to serve from it.
+app.mount(settings.media_base_url, StaticFiles(directory=settings.media_root), name="media")
+
+# properties, search, verification, messaging, inspections, reports,
+# payments, notifications, and admin all have real ORM models (see
+# app/models_registry.py) but no router yet beyond the read-only
+# listing-media endpoint media_router already adds: per
 # roadmap-reconciliation.md, Stage 7 is real accounts and a backend,
 # Stage 8 is listing creation, dashboards, messaging, and inspections
 # built on top of it. Mounting empty or fake routers for those now

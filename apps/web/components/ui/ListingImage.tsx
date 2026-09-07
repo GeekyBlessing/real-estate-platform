@@ -17,9 +17,9 @@ export interface ListingImageProps {
  * The one place a real listing photo is loaded and rendered, so the
  * blur-up transition, lazy loading, and offline/error fallback only
  * exist once. Rendered by ListingMedia (components/ui/ListingMedia.tsx)
- * whenever a listing image has a real url, falling back to the
- * PropertyIllustration/VehicleIllustration treatment if that photo
- * fails to load, rather than a broken image icon.
+ * whenever a listing image has a real url, falling back to
+ * MissingListingPhoto if that photo fails to load, rather than a
+ * broken image icon.
  */
 export function ListingImage({ src, alt, className, fallback, priority }: ListingImageProps) {
   const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");

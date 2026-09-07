@@ -100,12 +100,7 @@ export default function ActivityPage() {
                 </div>
                 {listing && (
                   <span className="h-12 w-12 flex-none overflow-hidden rounded">
-                    <ListingMedia
-                      image={listing.images[0]!}
-                      category={item.listingCategory === "property" ? "property" : "vehicle"}
-                      fallbackAlt={listing.title}
-                      className="h-full w-full"
-                    />
+                    <ListingMedia image={listing.images[0]} fallbackAlt={listing.title} className="h-full w-full" compact />
                   </span>
                 )}
               </div>

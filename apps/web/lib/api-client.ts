@@ -64,3 +64,35 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   return data as T;
 }
+
+/**
+ * The one place a multipart upload is sent, same error-handling
+ * contract as apiFetch above but deliberately not reusing it: a
+ * FormData body must never be JSON.stringify'd, and the browser needs
+ * to set its own multipart boundary in Content-Type, which means not
+ * setting that header at all here. Used by MediaUploader
+ * (components/ui/MediaUploader.tsx), the one place this app uploads
+ * real files.
+ */
+export async function apiUpload<T>(path: string, files: File[], accessToken: string): Promise<T> {
+  const formData = new FormData();
+  for (const file of files) formData.append("files", file);
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    credentials: "include",
+    body: formData,
+  });
+
+  const isJson = response.headers.get("content-type")?.includes("application/json");
+  const data = isJson ? await response.json() : undefined;
+
+  if (!response.ok) {
+    const message = (data && typeof data === "object" && "detail" in data ? (data as { detail: string }).detail : undefined) ??
+      `Upload failed with status ${response.status}`;
+    throw new ApiError(message, response.status);
+  }
+
+  return data as T;
+}

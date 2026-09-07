@@ -28,12 +28,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
   return (
     <article className="group overflow-hidden rounded border border-line bg-parchment transition-colors hover:border-line-strong">
       <div className="relative aspect-[4/3] w-full">
-        <ListingMedia
-          image={vehicle.images[0]!}
-          category="vehicle"
-          fallbackAlt={vehicle.title}
-          className="h-full w-full"
-        />
+        <ListingMedia image={vehicle.images[0]} fallbackAlt={vehicle.title} className="h-full w-full" compact />
         <div className="pointer-events-none absolute inset-0 flex items-start justify-between p-3">
           <VerificationBadge state={vehicle.verificationState} />
           <span className="rounded-full bg-ink/80 px-2.5 py-1 text-label uppercase text-parchment">

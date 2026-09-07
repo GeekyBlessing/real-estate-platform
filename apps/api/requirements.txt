@@ -3,6 +3,8 @@
 # provider SDKs are deliberately not installed yet: nothing in this scaffold calls them,
 # and pulling them in before there is a provider abstraction to call them from would be
 # dead weight. See app/core/config.py for what is actually wired up in this pass.
+# Pillow and python-multipart are the exception: app/modules/media (real photo
+# upload/validation/compression) genuinely calls both.
 
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
@@ -17,6 +19,8 @@ pyjwt==2.10.1
 structlog==24.4.0
 python-dotenv==1.0.1
 httpx==0.28.1
+python-multipart==0.0.20
+Pillow==11.1.0
 
 # Test tooling
 pytest==8.3.4
