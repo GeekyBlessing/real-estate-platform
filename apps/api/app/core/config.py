@@ -33,6 +33,43 @@ class Settings(BaseSettings):
     media_root: str = "./media_storage"
     media_base_url: str = "/media/files"
 
+    # Verification documents (ID, proof of address, business registration,
+    # and similar) are deliberately never mounted as static files the way
+    # media_root is above: a listing photo is meant to be public, an ID
+    # document never is. verification_documents_root is only ever read
+    # through the authenticated, ownership-checked endpoint in
+    # app/modules/verification/router.py.
+    verification_documents_root: str = "./verification_storage"
+
+    # Cloudflare R2 (S3-compatible object storage), added to fix a real
+    # production bug: Render's free tier gives this service no persistent
+    # disk, so everything LocalDiskStorage and LocalDiskDocumentStorage wrote
+    # to media_root / verification_documents_root was silently gone the next
+    # time the instance restarted, which happens roughly every fifteen
+    # minutes of no traffic on the free plan. See app/modules/media/storage.py
+    # and app/modules/verification/storage.py: both switch to their
+    # S3-backed implementation automatically the moment r2_account_id is set,
+    # and fall back to local disk when it is not, so local development with
+    # no R2 credentials configured keeps working exactly as before. Two
+    # buckets, not one: r2_media_bucket is public (listing photos are meant
+    # to be seen by anyone), r2_documents_bucket is never made public
+    # (verification documents are private and only ever served back through
+    # the authenticated endpoint that already exists for this).
+    r2_account_id: str = ""
+    r2_access_key_id: str = ""
+    r2_secret_access_key: str = ""
+    r2_media_bucket: str = ""
+    r2_media_public_url: str = ""
+    r2_documents_bucket: str = ""
+
+    @property
+    def r2_configured(self) -> bool:
+        return bool(self.r2_account_id and self.r2_access_key_id and self.r2_secret_access_key)
+
+    @property
+    def r2_endpoint_url(self) -> str:
+        return f"https://{self.r2_account_id}.r2.cloudflarestorage.com"
+
     # The origin this API is actually reachable at from a browser. A
     # locally-stored file only ever gets a path relative to this same
     # FastAPI process, so that path has to be turned into an absolute URL

@@ -1,10 +1,13 @@
 # Pinned to what the architecture doc specifies (realestate-saas-phase1-architecture.md
-# section 2). arq (Redis-backed jobs), boto3 (S3), and the Paystack/Flutterwave/KYC
-# provider SDKs are deliberately not installed yet: nothing in this scaffold calls them,
-# and pulling them in before there is a provider abstraction to call them from would be
-# dead weight. See app/core/config.py for what is actually wired up in this pass.
+# section 2). arq (Redis-backed jobs) and the Paystack/Flutterwave/KYC provider SDKs
+# are deliberately not installed yet: nothing in this scaffold calls them, and pulling
+# them in before there is a provider abstraction to call them from would be dead
+# weight. See app/core/config.py for what is actually wired up in this pass.
 # Pillow and python-multipart are the exception: app/modules/media (real photo
-# upload/validation/compression) genuinely calls both.
+# upload/validation/compression) genuinely calls both. boto3 is here for the same
+# reason as of the R2 storage fix: app/modules/media/storage.py and
+# app/modules/verification/storage.py both call it now that local disk storage
+# turned out not to survive a Render free-tier restart in production.
 
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
@@ -21,6 +24,7 @@ python-dotenv==1.0.1
 httpx==0.28.1
 python-multipart==0.0.20
 Pillow==11.1.0
+boto3==1.35.99
 
 # Test tooling
 pytest==8.3.4
