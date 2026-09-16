@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
@@ -31,6 +31,10 @@ class VerificationRequest(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     """Nullable: Phase 1's fallback is manual admin review, per the architecture doc's section 9, not every request has an automated provider."""
     reviewed_by_admin_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     decision_reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
+
+    documents: Mapped[list["VerificationDocument"]] = relationship(
+        "VerificationDocument", cascade="all, delete-orphan", order_by="VerificationDocument.created_at"
+    )
 
 
 class VerificationDocument(Base, UUIDPrimaryKeyMixin, TimestampMixin):

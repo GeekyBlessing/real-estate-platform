@@ -22,11 +22,16 @@ from app.modules.locations.models import Area, City, Country, StateRegion
 from app.modules.properties.models import Amenity, PropertyType
 from app.modules.users.models import Role
 
-ROLE_NAMES = ["tenant", "buyer", "landlord", "agent", "admin"]
-"""Matches the client's stated Phase 1 roles (Tenant, Buyer, Landlord, Agent, Administrator) and the register
-page's ROLE_OPTIONS (apps/web/app/(auth)/register/page.tsx). Buyer has no dedicated profile extension table,
-same as the architecture doc's section 5, which only defines tenant_profiles, landlord_profiles, and
-agent_profiles: a buyer's needs don't diverge from a bare user record yet."""
+ROLE_NAMES = ["tenant", "buyer", "landlord", "agent", "car_dealer", "private_seller", "admin"]
+"""
+The six roles registration supports (Renter, Buyer, Landlord, Agent, Car Dealer, Private Seller) plus
+Administrator. "tenant" is the renter role's original slug, kept as-is rather than renamed in the database:
+existing rows and code already key off it, and the register page displays it to users as "Renter" (see
+apps/web/app/(auth)/register/page.tsx's ROLE_OPTIONS) without the underlying slug needing to match. Buyer and
+tenant share tenant_profiles (users/models.py); car_dealer and private_seller each get their own extension
+table, car_dealer_profiles and private_seller_profiles, since a dealership and an individual seller collect
+materially different fields.
+"""
 
 # Mirrors apps/web/lib/locations.ts's STATES constant. Keep these two in
 # sync by hand for now; there is no shared source of truth between the

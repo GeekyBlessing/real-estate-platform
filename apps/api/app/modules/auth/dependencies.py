@@ -57,6 +57,32 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_optional(
+    authorization: str | None = Header(default=None),
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    """
+    Same checks as get_current_user, but a missing, expired, or
+    invalid token returns None instead of a 401. For a route that is
+    public but behaves differently for a signed in owner or admin (a
+    listing detail page showing an unpublished listing back to the
+    person who owns it), this is the one place that distinction is
+    made, never a header the frontend can set to claim it.
+    """
+    if not authorization or not authorization.lower().startswith("bearer "):
+        return None
+    token = authorization.split(" ", 1)[1]
+    try:
+        payload = decode_access_token(token)
+        user_id = uuid.UUID(payload["sub"])
+    except (jwt.PyJWTError, KeyError, ValueError):
+        return None
+    user = await get_by_id(db, user_id)
+    if not user or user.status != "active" or payload.get("tv") != user.token_version:
+        return None
+    return user
+
+
 async def require_same_origin_header(x_ile_client: str | None = Header(default=None)) -> None:
     """
     The pragmatic CSRF defense section 8 describes: because the

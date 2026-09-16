@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import BigInteger, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -55,8 +55,15 @@ class Listing(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     rent_period: Mapped[str | None] = mapped_column(String(8), nullable=True)
     """"month" or "year", only meaningful when listing_type is "rent"."""
 
-    price_in_minor_units: Mapped[int] = mapped_column(Integer, nullable=False)
-    """Kobo, never floating point, per the architecture doc's database principles (section 4)."""
+    price_in_minor_units: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    """
+    Kobo, never floating point, per the architecture doc's database
+    principles (section 4). BigInteger, not Integer: a plain 32 bit
+    column tops out around 21.4 million Naira in kobo, an ordinary
+    sale price in Lagos, and overflowed the first time a real duplex
+    sale listing was tested end to end (see migrations/versions for
+    the migration that widened this column).
+    """
     currency: Mapped[str] = mapped_column(String(3), nullable=False, default="NGN")
 
     city_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("cities.id"), nullable=False)
