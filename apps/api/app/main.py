@@ -1,6 +1,5 @@
 import structlog
 from fastapi import FastAPI, Request, status
-from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -11,14 +10,9 @@ from app.core.config import get_settings
 
 logger = structlog.get_logger()
 from app.modules.auth.router import router as auth_router
-from app.modules.inspections.router import router as inspections_router
 from app.modules.media.router import router as media_router
 from app.modules.media.storage import get_storage
-from app.modules.messaging.router import router as messaging_router
-from app.modules.onboarding.router import router as onboarding_router
-from app.modules.properties.router import router as properties_router
 from app.modules.users.router import router as users_router
-from app.modules.verification.router import router as verification_router
 
 settings = get_settings()
 
@@ -44,28 +38,6 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
     modules that don't.
     """
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
-
-
-@app.exception_handler(RequestValidationError)
-async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
-    """
-    FastAPI's default shape for a pydantic validation failure is a
-    detail array of per-field error objects, meant for an API
-    consumer, not a person. Every client in this app (apiFetch in
-    apps/web/lib/api-client.ts) reads detail as a single string
-    message, the same contract AppError's handler above already
-    gives it, so a raw field_validator failure (an invalid phone
-    number, a weak password, a blank full name) needs to be flattened
-    to that same shape rather than showing someone a debug payload.
-    Only the first error is surfaced: showing every failing field at
-    once reads as a wall of noise, and the frontend re-validates on
-    submit anyway, so the next issue surfaces on the next attempt.
-    """
-    first = exc.errors()[0] if exc.errors() else {}
-    message = str(first.get("msg", "Check your information and try again."))
-    if message.startswith("Value error, "):
-        message = message[len("Value error, ") :]
-    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={"detail": message})
 
 
 @app.exception_handler(Exception)
@@ -97,11 +69,6 @@ async def health() -> dict[str, str]:
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(media_router)
-app.include_router(verification_router)
-app.include_router(onboarding_router)
-app.include_router(properties_router)
-app.include_router(messaging_router)
-app.include_router(inspections_router)
 
 # Real uploaded files (see app/modules/media/storage.py's LocalDiskStorage):
 # served directly since this pass has no CDN in front of it, but only in
@@ -117,16 +84,12 @@ get_storage()  # Ensures media_root exists before StaticFiles tries to serve fro
 if not settings.r2_configured:
     app.mount(settings.media_base_url, StaticFiles(directory=settings.media_root), name="media")
 
-# search, reports, payments, notifications, and admin (beyond the
-# audit log properties/service.py already writes to, and the listing
-# queue decision endpoints) all have real ORM models (see
-# app/models_registry.py) but no router yet. Per
+# properties, search, verification, messaging, inspections, reports,
+# payments, notifications, and admin all have real ORM models (see
+# app/models_registry.py) but no router yet beyond the read-only
+# listing-media endpoint media_router already adds: per
 # roadmap-reconciliation.md, Stage 7 is real accounts and a backend,
 # Stage 8 is listing creation, dashboards, messaging, and inspections
-# built on top of it; that stage is now complete end to end (listing
-# creation and review, messaging tied to a real listing and a real
-# conversation thread, and inspection requests a seller actually
-# confirms, rejects, or reschedules, all with server side ownership
-# checks). Mounting empty or fake routers for the rest now would be
-# the same "looks like progress, isn't" problem the frontend audits
-# warned against, just moved to the backend.
+# built on top of it. Mounting empty or fake routers for those now
+# would be the same "looks like progress, isn't" problem the frontend
+# audits warned against, just moved to the backend.
